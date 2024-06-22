@@ -17,14 +17,14 @@ class MainApp extends StatefulWidget {
 }
 
 class _MainAppState extends State<MainApp> {
-  int _selectedIndex = 0;
+  int _selectedIndex = 2;
 
   final List _pages = [
-    const Dashboard(),
-    const Items(),
-    const Categories(),
-    const Retailers(),
-    const Settings(),
+    Items(),
+    Categories(),
+    Dashboard(),
+    Retailers(),
+    Settings(),
   ];
 
   void _navigateBottomBar(int index) {
@@ -38,29 +38,35 @@ class _MainAppState extends State<MainApp> {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       home: Scaffold(
+        appBar: AppBar(
+          backgroundColor: Colors.teal,
+          title: const Text("Test", style: TextStyle(color: Color.fromARGB(255, 244, 253, 255),),),
+          centerTitle: true,
+          shadowColor: Colors.black,
+          elevation: 8,
+        ),
         body: _pages[_selectedIndex],
         bottomNavigationBar: NavigationBar(
           onDestinationSelected: _navigateBottomBar,
           labelBehavior: NavigationDestinationLabelBehavior.onlyShowSelected,
           selectedIndex: _selectedIndex,
+          height: 64,
           destinations: const [
             NavigationDestination(
-                icon: Icon(Icons.home, color: Colors.teal,),
-                label: "Home"),
+                icon: Icon(Icons.list, color: Colors.teal), label: "Items"),
             NavigationDestination(
-                icon: Icon(Icons.list,
-                    color: Colors.teal),
-                label: "Items"),
-            NavigationDestination(
-                icon: Icon(Icons.account_tree,
-                    color: Colors.teal),
+                icon: Icon(Icons.account_tree, color: Colors.teal),
                 label: "Categories"),
             NavigationDestination(
-                icon: Icon(Icons.shop, color: Colors.teal),
-                label: "Retailers"),
+                icon: Icon(
+                  Icons.home,
+                  color: Colors.teal,
+                ),
+                label: "Home"),
             NavigationDestination(
-                icon: Icon(Icons.settings,
-                    color: Colors.teal),
+                icon: Icon(Icons.shop, color: Colors.teal), label: "Retailers"),
+            NavigationDestination(
+                icon: Icon(Icons.settings, color: Colors.teal),
                 label: "Settings"),
           ],
         ),
