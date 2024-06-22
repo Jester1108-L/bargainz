@@ -38,16 +38,16 @@ class _CategoriesState extends State<Categories> {
 
   void onEdit(int index) {
     showDialog(
-      context: context,
-      builder: (context) {
-        _controller.text = _categories[index];
+        context: context,
+        builder: (context) {
+          _controller.text = _categories[index];
 
-        return CategoryDialogBox(
-          controller: _controller,
-          onCancel: () => Navigator.of(context).pop(),
-          onSave: () => onSave(true, index),
-        );
-      });
+          return CategoryDialogBox(
+            controller: _controller,
+            onCancel: () => Navigator.of(context).pop(),
+            onSave: () => onSave(true, index),
+          );
+        });
   }
 
   void addCategory(BuildContext context) {
@@ -64,28 +64,49 @@ class _CategoriesState extends State<Categories> {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(top: 32, left: 8, right: 8),
-      child: ListView(
-        scrollDirection: Axis.vertical,
-        children: [
-          ElevatedButton(
-            onPressed: () => addCategory(context),
-            style: const ButtonStyle(
-              backgroundColor: WidgetStatePropertyAll(Colors.green)
-            ),
-            child: const Icon(
-              Icons.add,
-              color: Color.fromARGB(255, 244, 253, 255),
-            ),
+    return Scaffold(
+      appBar: AppBar(
+        leading: const BackButton(
+          color: Colors.white,
+        ),
+        backgroundColor: Colors.teal,
+        title: const Text(
+          "Test",
+          style: TextStyle(
+            color: Color.fromARGB(255, 244, 253, 255),
           ),
-          for (int i = 0; i < _categories.length; i++)
-            CategoryTile(
-              title: _categories[i],
-              onDelete: (context) => onDelete(i),
-              onEdit: (context) => onEdit(i),
-            )
-        ],
+        ),
+        centerTitle: true,
+        shadowColor: Colors.black,
+        elevation: 8,
+      ),
+      body: Padding(
+        padding: const EdgeInsets.only(top: 32, left: 8, right: 8),
+        child: ListView(
+          scrollDirection: Axis.vertical,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                ElevatedButton(
+                  onPressed: () => addCategory(context),
+                  style: const ButtonStyle(
+                      backgroundColor: WidgetStatePropertyAll(Colors.green)),
+                  child: const Icon(
+                    Icons.add,
+                    color: Color.fromARGB(255, 244, 253, 255),
+                  ),
+                ),
+              ],
+            ),
+            for (int i = 0; i < _categories.length; i++)
+              CategoryTile(
+                title: _categories[i],
+                onDelete: (context) => onDelete(i),
+                onEdit: (context) => onEdit(i),
+              )
+          ],
+        ),
       ),
     );
   }

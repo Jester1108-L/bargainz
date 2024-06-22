@@ -1,3 +1,4 @@
+import 'package:bargainz/models/item.dart';
 import 'package:bargainz/pages/items/item-tile.dart';
 import 'package:flutter/material.dart';
 
@@ -6,19 +7,6 @@ class Items extends StatefulWidget {
 
   @override
   State<Items> createState() => _ItemsState();
-}
-
-class Item {
-  String barcode = '';
-  String name = '';
-  String description = '';
-  String category = '';
-  String retailer = '';
-  String units = '';
-  String uom = '';
-  double price = 0.0;
-
-  Item({required this.barcode});
 }
 
 class _ItemsState extends State<Items> {
@@ -93,14 +81,19 @@ class _ItemsState extends State<Items> {
           }),
           Padding(
             padding: const EdgeInsets.only(top: 32.0),
-            child: ElevatedButton(
-              onPressed: () => {},
-              style: const ButtonStyle(
-                  backgroundColor: WidgetStatePropertyAll(Colors.green)),
-              child: const Icon(
-                Icons.add,
-                color: Color.fromARGB(255, 244, 253, 255),
-              ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                ElevatedButton(
+                  onPressed: () => {},
+                  style: const ButtonStyle(
+                      backgroundColor: WidgetStatePropertyAll(Colors.green)),
+                  child: const Icon(
+                    Icons.add,
+                    color: Color.fromARGB(255, 244, 253, 255),
+                  ),
+                ),
+              ],
             ),
           ),
           for (int i = 0; i < _items.length; i++)

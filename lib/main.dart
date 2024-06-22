@@ -1,5 +1,6 @@
 import 'package:bargainz/pages/categories.dart';
 import 'package:bargainz/pages/dashboard.dart';
+import 'package:bargainz/pages/item-summary.dart';
 import 'package:bargainz/pages/items.dart';
 import 'package:bargainz/pages/retailers.dart';
 import 'package:bargainz/pages/settings.dart';
@@ -17,13 +18,12 @@ class MainApp extends StatefulWidget {
 }
 
 class _MainAppState extends State<MainApp> {
-  int _selectedIndex = 0;
+  int _selectedIndex = 1;
 
   final List _pages = [
     Items(),
-    Categories(),
     Dashboard(),
-    Retailers(),
+    ItemSummary(),
     Settings(),
   ];
 
@@ -37,10 +37,19 @@ class _MainAppState extends State<MainApp> {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
+      routes: {
+        '/categories': (context) => Categories(),
+        '/retailers': (context) => Retailers(),
+      },
       home: Scaffold(
         appBar: AppBar(
           backgroundColor: Colors.teal,
-          title: const Text("Test", style: TextStyle(color: Color.fromARGB(255, 244, 253, 255),),),
+          title: const Text(
+            "Test",
+            style: TextStyle(
+              color: Color.fromARGB(255, 244, 253, 255),
+            ),
+          ),
           centerTitle: true,
           shadowColor: Colors.black,
           elevation: 8,
@@ -55,16 +64,17 @@ class _MainAppState extends State<MainApp> {
             NavigationDestination(
                 icon: Icon(Icons.list, color: Colors.teal), label: "Items"),
             NavigationDestination(
-                icon: Icon(Icons.account_tree, color: Colors.teal),
-                label: "Categories"),
+                icon: Icon(
+                  Icons.summarize,
+                  color: Colors.teal,
+                ),
+                label: "Summary"),
             NavigationDestination(
                 icon: Icon(
                   Icons.home,
                   color: Colors.teal,
                 ),
                 label: "Home"),
-            NavigationDestination(
-                icon: Icon(Icons.shop, color: Colors.teal), label: "Retailers"),
             NavigationDestination(
                 icon: Icon(Icons.settings, color: Colors.teal),
                 label: "Settings"),
