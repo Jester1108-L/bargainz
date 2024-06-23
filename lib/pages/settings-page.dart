@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 
-class Settings extends StatelessWidget {
+class SettingsPage extends StatelessWidget {
   final double imgSize = 250;
 
-  const Settings({super.key});
+  const SettingsPage({super.key});
 
   @override
   Widget build(BuildContext context) {

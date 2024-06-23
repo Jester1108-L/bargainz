@@ -1,9 +1,13 @@
+import 'package:bargainz/components/app-scaffold.dart';
+import 'package:bargainz/database/category-database.dart';
+import 'package:bargainz/models/category.dart';
 import 'package:bargainz/pages/categories/category-dialog-box.dart';
 import 'package:bargainz/pages/categories/category-tile.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
 class Categories extends StatefulWidget {
-  Categories({super.key});
+  const Categories({super.key});
 
   @override
   State<Categories> createState() => _CategoriesState();
@@ -12,17 +16,14 @@ class Categories extends StatefulWidget {
 class _CategoriesState extends State<Categories> {
   final _controller = TextEditingController();
 
-  final List<String> _categories = [
-    'Cheese',
-    'Meat',
-  ];
-
-  void onSave(bool updating, int idx) {
+  void onSave(bool updating, String id) {
     setState(() {
+      Category category = Category(name: _controller.text, id: id);
+
       if (updating) {
-        _categories[idx] = _controller.text;
+        CategoryDatabase.updateCategory(category);
       } else {
-        _categories.add(_controller.text);
+        CategoryDatabase.insertCategory(category);
       }
 
       _controller.clear();
@@ -30,22 +31,22 @@ class _CategoriesState extends State<Categories> {
     });
   }
 
-  void onDelete(int index) {
+  void onDelete(String id) {
     setState(() {
-      _categories.removeAt(index);
+      CategoryDatabase.deleteCategory(id);
     });
   }
 
-  void onEdit(int index) {
+  void onEdit(String id, String name) {
     showDialog(
         context: context,
         builder: (context) {
-          _controller.text = _categories[index];
+          _controller.text = name;
 
           return CategoryDialogBox(
             controller: _controller,
             onCancel: () => Navigator.of(context).pop(),
-            onSave: () => onSave(true, index),
+            onSave: () => onSave(true, id),
           );
         });
   }
@@ -57,32 +58,39 @@ class _CategoriesState extends State<Categories> {
           return CategoryDialogBox(
             controller: _controller,
             onCancel: () => Navigator.of(context).pop(),
-            onSave: () => onSave(false, -1),
+            onSave: () => onSave(false, ""),
           );
         });
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        leading: const BackButton(
-          color: Colors.white,
-        ),
-        backgroundColor: Colors.teal,
-        title: const Text(
-          "Test",
-          style: TextStyle(
-            color: Color.fromARGB(255, 244, 253, 255),
-          ),
-        ),
-        centerTitle: true,
-        shadowColor: Colors.black,
-        elevation: 8,
-      ),
-      body: Padding(
-        padding: const EdgeInsets.only(top: 32, left: 8, right: 8),
-        child: ListView(
+    Widget childWidget = StreamBuilder<QuerySnapshot>(
+      stream: CategoryDatabase.getCategories(),
+      builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+        if (snapshot.hasError) {
+          return const Text('Something went wrong');
+        }
+
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              ClipRRect(
+                borderRadius: BorderRadius.circular(20),
+                child: SizedBox(
+                  height: 250,
+                  width: 250,
+                  child: Image.asset('assets/images/image-loading.gif'),
+                ),
+              ),
+            ],
+          );
+        }
+
+        List<DocumentSnapshot> docs = snapshot.data!.docs;
+
+        return ListView(
           scrollDirection: Axis.vertical,
           children: [
             Row(
@@ -99,15 +107,17 @@ class _CategoriesState extends State<Categories> {
                 ),
               ],
             ),
-            for (int i = 0; i < _categories.length; i++)
+            for (DocumentSnapshot doc in docs)
               CategoryTile(
-                title: _categories[i],
-                onDelete: (context) => onDelete(i),
-                onEdit: (context) => onEdit(i),
+                title: doc["name"],
+                onDelete: (context) => onDelete(doc.id),
+                onEdit: (context) => onEdit(doc.id, doc["name"]),
               )
           ],
-        ),
-      ),
+        );
+      },
     );
+
+    return AppScaffold(childWidget: childWidget);
   }
 }
