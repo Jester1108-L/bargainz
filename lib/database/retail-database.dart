@@ -9,6 +9,10 @@ class RetailerDatabase {
     return _collection.snapshots();
   }
 
+  static Future<Stream<QuerySnapshot<Map<String, dynamic>>>> getRetailersAsFuture() async {
+    return _collection.snapshots();
+  }
+
   static Future<List<Retailer>> getRetailersListing() async {
     return await _collection.get().then((snapshot) {
       return snapshot.docs

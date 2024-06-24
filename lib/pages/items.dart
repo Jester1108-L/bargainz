@@ -3,8 +3,11 @@ import 'package:bargainz/database/retail-database.dart';
 import 'package:bargainz/models/product.dart';
 import 'package:bargainz/models/retailer.dart';
 import 'package:bargainz/pages/items/item-tile.dart';
+import 'package:bargainz/pages/items/new-product.dart';
+import 'package:camera/camera.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:google_mlkit_barcode_scanning/google_mlkit_barcode_scanning.dart';
 
 class Items extends StatefulWidget {
   const Items({super.key});
@@ -14,28 +17,162 @@ class Items extends StatefulWidget {
 }
 
 class _ItemsState extends State<Items> {
-  final _controller = TextEditingController();
+  String? scannedBarcode = null;
   List<Retailer> _retailers = [];
-
-  void onSave(bool updating, String id) {
-    setState(() {
-      Product product = Product(barcode: _controller.text, id: id);
-
-      if (updating) {
-        ProductDatabase.updateProduct(product);
-      } else {
-        ProductDatabase.insertProduct(product);
-      }
-
-      _controller.clear();
-      Navigator.of(context).pop();
-    });
-  }
+  // late Future<void> _initializeControllerFuture;
 
   void onDelete(String id) {
     setState(() {
       ProductDatabase.deleteProduct(id);
     });
+  }
+
+  void onBarcodeScanned() async {
+    Navigator.pop(context);
+
+    if (scannedBarcode != null) {
+      Product product = Product(
+          barcode: scannedBarcode ?? "",
+          name: "",
+          retailer: "",
+          category: "",
+          description: "");
+
+      showDialog(
+          context: context,
+          builder: (context) {
+            return AlertDialog(
+              content: SizedBox(
+                height: 150,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Center(
+                      child: Column(
+                        children: [
+                          Text("Scanned Barcode: $scannedBarcode"),
+                          const Text("Would you like to proceed?"),
+                        ],
+                      ),
+                    ),
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        minimumSize: const Size.fromHeight(
+                            32), // fromHeight use double.infinity as width and 40 is the height
+                      ),
+                      onPressed: () {
+                        Navigator.pop(context);
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute<void>(
+                            builder: (BuildContext context) => NewProduct(
+                              id: null,
+                              product: product,
+                            ),
+                          ),
+                        );
+                      },
+                      child: const Text("OK"),
+                    ),
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        minimumSize: const Size.fromHeight(
+                            32), // fromHeight use double.infinity as width and 40 is the height
+                      ),
+                      onPressed: () {
+                        Navigator.pop(context);
+                      },
+                      child: const Text("Cancel"),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          });
+    } else {
+      showDialog(
+          context: context,
+          builder: (context) {
+            return AlertDialog(
+              content: SizedBox(
+                height: 100,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Center(
+                      child: Text(
+                          "No barcode has been scanned. Please try again."),
+                    ),
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        minimumSize: const Size.fromHeight(
+                            32), // fromHeight use double.infinity as width and 40 is the height
+                      ),
+                      onPressed: () {
+                        Navigator.pop(context);
+                      },
+                      child: const Text("OK"),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          });
+    }
+  }
+
+  void onCameraDisplay() async {
+    if (mounted) {
+      List<CameraDescription> cameras = await availableCameras();
+      CameraController cameraController =
+          CameraController(cameras.last, ResolutionPreset.medium);
+      await cameraController.initialize();
+
+      showDialog(
+          context: context,
+          builder: (context) {
+            return AlertDialog(
+              content: SizedBox(
+                height: 375,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    CameraPreview(cameraController),
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        minimumSize: const Size.fromHeight(
+                            32), // fromHeight use double.infinity as width and 40 is the height
+                      ),
+                      onPressed: () async {
+                        try {
+                          final image = await cameraController.takePicture();
+                          final inputImage =
+                              InputImage.fromFilePath(image.path);
+                          final List<Barcode> barcodes =
+                              await BarcodeScanner().processImage(inputImage);
+
+                          if (barcodes.isNotEmpty) {
+                            scannedBarcode = barcodes.first.displayValue;
+                          } else {
+                            scannedBarcode = null;
+                          }
+
+                          onBarcodeScanned();
+                        } catch (e) {
+                          print(e);
+                        }
+                      },
+                      child: const Icon(Icons.camera_alt),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          });
+    }
   }
 
   @override
@@ -103,23 +240,22 @@ class _ItemsState extends State<Items> {
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
                 ElevatedButton(
-                  onPressed: () => {},
+                  onPressed: () => onCameraDisplay(),
                   style: const ButtonStyle(
-                      backgroundColor: WidgetStatePropertyAll(Colors.green)),
+                      backgroundColor: WidgetStatePropertyAll(Colors.blue)),
                   child: const Icon(
-                    Icons.add,
+                    Icons.camera,
                     color: Color.fromARGB(255, 244, 253, 255),
                   ),
                 ),
               ],
             ),
           ),
-
           Flexible(
             child: StreamBuilder<QuerySnapshot>(
               stream: ProductDatabase.getProducts(),
-              builder:
-                  (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+              builder: (BuildContext context,
+                  AsyncSnapshot<QuerySnapshot> snapshot) {
                 if (snapshot.hasError) {
                   return const Text('Something went wrong');
                 }
@@ -142,14 +278,42 @@ class _ItemsState extends State<Items> {
 
                 List<DocumentSnapshot> docs = snapshot.data!.docs;
 
+                if (docs.isEmpty) {
+                  return const Padding(
+                    padding: EdgeInsets.only(top: 16.0),
+                    child: Text('No products added', style: TextStyle(color: Colors.grey),),
+                  );
+                }
+
                 return ListView(
                   scrollDirection: Axis.vertical,
                   children: [
                     for (DocumentSnapshot doc in docs)
                       ItemTile(
-                        title: doc["barcode"],
+                        product: Product(
+                            barcode: doc["barcode"],
+                            name: doc["name"],
+                            category: doc["category"],
+                            retailer: doc["retailer"],
+                            description: doc["description"]),
                         onDelete: (context) => onDelete(doc.id),
-                        onEdit: (context) => onSave(true, doc.id),
+                        onEdit: (context) {
+                          Product product = Product(
+                              barcode: doc["barcode"],
+                              name: doc["name"],
+                              category: doc["category"],
+                              retailer: doc["retailer"],
+                              description: doc["description"]);
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute<void>(
+                              builder: (BuildContext context) => NewProduct(
+                                product: product,
+                                id: doc.id,
+                              ),
+                            ),
+                          );
+                        },
                       )
                   ],
                 );

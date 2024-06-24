@@ -9,6 +9,20 @@ class ProductDatabase {
     return _collection.snapshots();
   }
 
+  static Future<List<Product>> getProductListing() async {
+    return await _collection.get().then((snapshot) {
+      return snapshot.docs
+          .map((el) => Product(
+              barcode: el["barcode"],
+              name: el["name"],
+              description: el["description"],
+              category: el["category"],
+              retailer: el["retailer"],
+              id: el.id))
+          .toList();
+    });
+  }
+
   static Future<String> insertProduct(Product product) async {
     return await _collection.add(product.toMap()).then((docRef) {
       return docRef.id;

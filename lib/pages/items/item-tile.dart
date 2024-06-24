@@ -1,12 +1,17 @@
+import 'package:bargainz/models/product.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 
 class ItemTile extends StatelessWidget {
-  final String title;
+  final Product product;
   final Function(BuildContext)? onDelete;
   final Function(BuildContext)? onEdit;
 
-  const ItemTile({super.key, required this.title, required this.onDelete, required this.onEdit});
+  const ItemTile(
+      {super.key,
+      required this.product,
+      required this.onDelete,
+      required this.onEdit});
 
   @override
   Widget build(BuildContext context) {
@@ -47,7 +52,7 @@ class ItemTile extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
-                  title,
+                  product.name,
                   style: const TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.w400,
@@ -57,16 +62,10 @@ class ItemTile extends StatelessWidget {
                   thickness: 1,
                   color: Color.fromARGB(64, 0, 0, 0),
                 ),
-                const Padding(
-                  padding: EdgeInsets.only(top: 8),
-                  child: Text(
-                    "lorem ipsum",
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w400,
-                    ),
-                  ),
-                ),
+                Text(product.description),
+                Text("Barcode: " + product.barcode),
+                Text("Retailer: " + product.retailer),
+                Text("Category: " + product.category),
               ],
             ),
           ),

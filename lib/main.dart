@@ -2,6 +2,7 @@ import 'package:bargainz/pages/categories.dart';
 import 'package:bargainz/pages/dashboard.dart';
 import 'package:bargainz/pages/item-summary.dart';
 import 'package:bargainz/pages/items.dart';
+import 'package:bargainz/pages/items/new-product.dart';
 import 'package:bargainz/pages/retailers.dart';
 import 'package:bargainz/pages/settings-page.dart';
 import 'package:flutter/material.dart';
