@@ -41,10 +41,6 @@ class _ItemSummaryState extends State<ItemSummary> {
 
   @override
   Widget build(BuildContext context) {
-    products.sort((p1, p2) {
-      return getPricePerUoM(p1) > getPricePerUoM(p2) ? 1 : 0;
-    });
-
     if (products.isEmpty) {
       return const Center(
         child: Padding(
@@ -57,13 +53,54 @@ class _ItemSummaryState extends State<ItemSummary> {
       );
     }
 
+    products.sort((p1, p2) {
+      return getPricePerUoM(p1) > getPricePerUoM(p2) ? 1 : 0;
+    });
+
+    Map<String, List<Product>> grouping = {};
+
+    for (Product product in products) {
+      grouping[product.category] = [
+        ...(grouping[product.category] ?? []),
+        product
+      ];
+    }
+
+    List<DataRow> rows = [];
+    bool isOdd = true;
+
+    grouping.forEach((key, value) {
+      for (int i = 0; i < value.length; i++) {
+        final product = value[i];
+        int opacityVariant = 400 - (100 * i);
+        opacityVariant = opacityVariant < 100 ? 100 : opacityVariant;
+
+        rows.add(DataRow(
+            color: WidgetStatePropertyAll(isOdd
+                ? Colors.teal[opacityVariant]
+                : Colors.green[opacityVariant]),
+            cells: [
+              DataCell(Text(product.name)),
+              DataCell(Text(product.category)),
+              DataCell(Text(product.retailer)),
+              DataCell(Text(product.price.toString())),
+              DataCell(Text(product.unit.toString())),
+              DataCell(Text(product.unit_of_measure)),
+              DataCell(Text(getPricePerUoM(product).toString())),
+            ]));
+      }
+
+      isOdd = !isOdd;
+    });
+
     return Padding(
       padding: const EdgeInsets.all(16),
       child: DataTable2(
         columnSpacing: 8,
-        minWidth: 600,
+        minWidth: 400,
         columns: const [
           DataColumn2(
+            fixedWidth: 48,
             label: Text('Name'),
           ),
           DataColumn2(
@@ -73,26 +110,23 @@ class _ItemSummaryState extends State<ItemSummary> {
             label: Text('Retailer'),
           ),
           DataColumn2(
+            fixedWidth: 48,
             label: Text('Price'),
           ),
           DataColumn2(
+            fixedWidth: 48,
             label: Text('Unit'),
           ),
           DataColumn2(
+            fixedWidth: 48,
+            label: Text('UoM'),
+          ),
+          DataColumn2(
+            fixedWidth: 48,
             label: Text('Price/UoM'),
           ),
         ],
-        rows: [
-          for (Product item in products)
-            DataRow(cells: [
-              DataCell(Text(item.name)),
-              DataCell(Text(item.category)),
-              DataCell(Text(item.retailer)),
-              DataCell(Text(item.price.toString())),
-              DataCell(Text(item.unit.toString())),
-              DataCell(Text(getPricePerUoM(item).toString())),
-            ])
-        ],
+        rows: rows,
       ),
     );
   }
