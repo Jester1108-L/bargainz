@@ -5,6 +5,7 @@ import 'package:bargainz/pages/items.dart';
 import 'package:bargainz/pages/items/new-product.dart';
 import 'package:bargainz/pages/retailers.dart';
 import 'package:bargainz/pages/settings-page.dart';
+import 'package:bargainz/pages/units-of-measure.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 
@@ -23,11 +24,11 @@ class MainApp extends StatefulWidget {
 }
 
 class _MainAppState extends State<MainApp> {
-  int _selectedIndex = 0;
+  int _selectedIndex = 1;
 
   final List _pages = [
     Items(),
-    Dashboard(),
+    // Dashboard(),
     ItemSummary(),
     SettingsPage(),
   ];
@@ -45,12 +46,13 @@ class _MainAppState extends State<MainApp> {
       routes: {
         '/categories': (context) => Categories(),
         '/retailers': (context) => Retailers(),
+        '/units-of-measure': (context) => UnitsOfMeasure(),
       },
       home: Scaffold(
         appBar: AppBar(
           backgroundColor: Colors.teal,
           title: const Text(
-            "Test",
+            "Bargainz",
             style: TextStyle(
               color: Color.fromARGB(255, 244, 253, 255),
             ),
@@ -68,12 +70,12 @@ class _MainAppState extends State<MainApp> {
           destinations: const [
             NavigationDestination(
                 icon: Icon(Icons.list, color: Colors.teal), label: "Products"),
-            NavigationDestination(
-                icon: Icon(
-                  Icons.home,
-                  color: Colors.teal,
-                ),
-                label: "Home"),
+            // NavigationDestination(
+            //     icon: Icon(
+            //       Icons.home,
+            //       color: Colors.teal,
+            //     ),
+            //     label: "Home"),
             NavigationDestination(
                 icon: Icon(
                   Icons.summarize,

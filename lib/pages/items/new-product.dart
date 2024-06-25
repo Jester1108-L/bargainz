@@ -36,7 +36,7 @@ class _NewProductState extends State<NewProduct> {
     });
     CategoryDatabase.getCategories().forEach((stream) {
       categories = stream.docs.map((el) {
-        return Category(id: el.id, name: el["name"]);
+        return Category(id: el.id, name: el["name"], unit_of_measure: el["unit_of_measure"]);
       }).toList();
       setState(() {});
     });
@@ -81,6 +81,24 @@ class _NewProductState extends State<NewProduct> {
                   FormBuilderValidators.required(),
                 ]),
               ),
+              FormBuilderTextField(
+                keyboardType: TextInputType.number,
+                name: 'unit',
+                initialValue: widget.product.unit.toString(),
+                decoration: const InputDecoration(labelText: 'Units'),
+                validator: FormBuilderValidators.compose([
+                  FormBuilderValidators.required(),
+                ]),
+              ),
+              FormBuilderTextField(
+                keyboardType: TextInputType.number,
+                name: 'price',
+                initialValue: widget.product.price.toString(),
+                decoration: const InputDecoration(labelText: 'Price'),
+                validator: FormBuilderValidators.compose([
+                  FormBuilderValidators.required(),
+                ]),
+              ),
               FormBuilderDropdown(
                 items: [
                   for (Retailer retailer in retailers)
@@ -102,7 +120,7 @@ class _NewProductState extends State<NewProduct> {
                     DropdownMenuItem(
                       child: Text(category.name),
                       value: category.name,
-                      key: Key(category.id),
+                      key: Key(category.id ?? ""),
                     )
                 ],
                 name: 'category',
@@ -126,6 +144,9 @@ class _NewProductState extends State<NewProduct> {
                           barcode: data?["barcode"],
                           name: data?["name"],
                           category: data?["category"],
+                          price: double.parse(data?["price"]),
+                          unit: double.parse(data?["unit"]),
+                          unit_of_measure: categories.where((cat){return cat.name == data?["category"];}).first.unit_of_measure,
                           retailer: data?["retailer"],
                           description: data?["description"]);
 

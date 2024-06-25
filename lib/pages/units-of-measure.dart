@@ -1,43 +1,69 @@
 import 'package:bargainz/components/app-scaffold.dart';
-import 'package:bargainz/database/category-database.dart';
-import 'package:bargainz/models/category.dart';
-import 'package:bargainz/pages/categories/category-dialog-box.dart';
-import 'package:bargainz/pages/categories/category-tile.dart';
+import 'package:bargainz/database/unit-of-measure-database.dart';
+import 'package:bargainz/models/unit-of-measure.dart';
+import 'package:bargainz/pages/units-of-measure/unit-of-measure-dialog-box.dart';
+import 'package:bargainz/pages/units-of-measure/unit-of-measure-tile.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
-class Categories extends StatefulWidget {
-  const Categories({super.key});
+class UnitsOfMeasure extends StatefulWidget {
+  const UnitsOfMeasure({super.key});
 
   @override
-  State<Categories> createState() => _CategoriesState();
+  State<UnitsOfMeasure> createState() => _UnitsOfMeasureState();
 }
 
-class _CategoriesState extends State<Categories> {
-  void onDelete(String id) {
+class _UnitsOfMeasureState extends State<UnitsOfMeasure> {
+  final _nameController = TextEditingController();
+  final _codeController = TextEditingController();
+
+  void onSave(bool updating, String id) {
     setState(() {
-      CategoryDatabase.deleteCategory(id);
+      UnitOfMeasure unit_of_measure = UnitOfMeasure(name: _nameController.text, id: id, code: _codeController.text);
+
+      if (updating) {
+        UnitsOfMeasureDatabase.updateUnitOfMeasure(unit_of_measure);
+      } else {
+        UnitsOfMeasureDatabase.insertUnitOfMeasure(unit_of_measure);
+      }
+
+      _nameController.clear();
+      _codeController.clear();
+      Navigator.of(context).pop();
     });
   }
 
-  void onEdit(String id, String name, String unit_of_measure) {
+  void onDelete(String id) {
+    setState(() {
+      UnitsOfMeasureDatabase.deleteUnitOfMeasure(id);
+    });
+  }
+
+  void onEdit(String id, String name, String code) {
     showDialog(
         context: context,
         builder: (context) {
-          return CategoryDialogBox(
-            id: id,
-            category: Category(name: name, unit_of_measure: unit_of_measure),
+          _nameController.text = name;
+          _codeController.text = code;
+
+          return UnitOfMeasureDialogBox(
+            nameController: _nameController,
+            codeController: _codeController,
+            onCancel: () => Navigator.of(context).pop(),
+            onSave: () => onSave(true, id),
           );
         });
   }
 
-  void addCategory(BuildContext context) {
+  void addUnitOfMeasure(BuildContext context) {
     showDialog(
         context: context,
         builder: (context) {
-          return CategoryDialogBox(
-            id: null,
-            category: Category(name: "", unit_of_measure: ""),
+          return UnitOfMeasureDialogBox(
+            nameController: _nameController,
+            codeController: _codeController,
+            onCancel: () => Navigator.of(context).pop(),
+            onSave: () => onSave(false, ""),
           );
         });
   }
@@ -45,7 +71,7 @@ class _CategoriesState extends State<Categories> {
   @override
   Widget build(BuildContext context) {
     Widget childWidget = StreamBuilder<QuerySnapshot>(
-      stream: CategoryDatabase.getCategories(),
+      stream: UnitsOfMeasureDatabase.getUnitsOfMeasure(),
       builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
         if (snapshot.hasError) {
           return const Text('Something went wrong');
@@ -76,7 +102,7 @@ class _CategoriesState extends State<Categories> {
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
                 ElevatedButton(
-                  onPressed: () => addCategory(context),
+                  onPressed: () => addUnitOfMeasure(context),
                   style: const ButtonStyle(
                       backgroundColor: WidgetStatePropertyAll(Colors.green)),
                   child: const Icon(
@@ -87,12 +113,11 @@ class _CategoriesState extends State<Categories> {
               ],
             ),
             for (DocumentSnapshot doc in docs)
-              CategoryTile(
+              UnitOfMeasureTile(
                 title: doc["name"],
-                unit_of_measure: doc["unit_of_measure"],
+                code: doc["code"],
                 onDelete: (context) => onDelete(doc.id),
-                onEdit: (context) =>
-                    onEdit(doc.id, doc["name"], doc["unit_of_measure"]),
+                onEdit: (context) => onEdit(doc.id, doc["name"], doc["code"]),
               )
           ],
         );

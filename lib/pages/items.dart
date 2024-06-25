@@ -18,6 +18,7 @@ class Items extends StatefulWidget {
 
 class _ItemsState extends State<Items> {
   String? scannedBarcode = null;
+  String? searchTerm = null;
   List<Retailer> _retailers = [];
   // late Future<void> _initializeControllerFuture;
 
@@ -35,7 +36,10 @@ class _ItemsState extends State<Items> {
           barcode: scannedBarcode ?? "",
           name: "",
           retailer: "",
+          unit_of_measure: "",
           category: "",
+          unit: 0,
+          price: 0,
           description: "");
 
       showDialog(
@@ -202,7 +206,8 @@ class _ItemsState extends State<Items> {
               trailing: [
                 ElevatedButton(
                   onPressed: () {
-                    print(controller.text);
+                    searchTerm = controller.text;
+                    setState(() {});
                   },
                   style: const ButtonStyle(
                       padding: WidgetStatePropertyAll<EdgeInsets>(
@@ -227,6 +232,8 @@ class _ItemsState extends State<Items> {
               return ListTile(
                 title: Text(item),
                 onTap: () {
+                  searchTerm = item;
+
                   setState(() {
                     controller.closeView(item);
                   });
@@ -237,7 +244,7 @@ class _ItemsState extends State<Items> {
           Padding(
             padding: const EdgeInsets.only(top: 32.0),
             child: Row(
-              mainAxisAlignment: MainAxisAlignment.end,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 ElevatedButton(
                   onPressed: () => onCameraDisplay(),
@@ -245,6 +252,15 @@ class _ItemsState extends State<Items> {
                       backgroundColor: WidgetStatePropertyAll(Colors.blue)),
                   child: const Icon(
                     Icons.camera,
+                    color: Color.fromARGB(255, 244, 253, 255),
+                  ),
+                ),
+                ElevatedButton(
+                  onPressed: () => ProductDatabase.deleteAll(),
+                  style: const ButtonStyle(
+                      backgroundColor: WidgetStatePropertyAll(Colors.red)),
+                  child: const Icon(
+                    Icons.delete,
                     color: Color.fromARGB(255, 244, 253, 255),
                   ),
                 ),
@@ -276,12 +292,15 @@ class _ItemsState extends State<Items> {
                   );
                 }
 
-                List<DocumentSnapshot> docs = snapshot.data!.docs;
+                List<DocumentSnapshot> docs = snapshot.data!.docs.where((doc) {return (searchTerm == null) || (doc["retailer"] == searchTerm);}).toList();
 
                 if (docs.isEmpty) {
                   return const Padding(
                     padding: EdgeInsets.only(top: 16.0),
-                    child: Text('No products added', style: TextStyle(color: Colors.grey),),
+                    child: Text(
+                      'No products',
+                      style: TextStyle(color: Colors.grey),
+                    ),
                   );
                 }
 
@@ -294,7 +313,10 @@ class _ItemsState extends State<Items> {
                             barcode: doc["barcode"],
                             name: doc["name"],
                             category: doc["category"],
+                            price: doc["price"],
+                            unit: doc["unit"],
                             retailer: doc["retailer"],
+                            unit_of_measure: doc["unit_of_measure"],
                             description: doc["description"]),
                         onDelete: (context) => onDelete(doc.id),
                         onEdit: (context) {
@@ -303,6 +325,9 @@ class _ItemsState extends State<Items> {
                               name: doc["name"],
                               category: doc["category"],
                               retailer: doc["retailer"],
+                              price: doc["price"],
+                              unit: doc["unit"],
+                              unit_of_measure: doc["unit_of_measure"],
                               description: doc["description"]);
                           Navigator.push(
                             context,

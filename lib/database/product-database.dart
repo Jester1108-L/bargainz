@@ -17,7 +17,10 @@ class ProductDatabase {
               name: el["name"],
               description: el["description"],
               category: el["category"],
+              unit_of_measure: el["unit_of_measure"],
               retailer: el["retailer"],
+              unit: el["unit"],
+              price: el["price"],
               id: el.id))
           .toList();
     });
@@ -35,5 +38,9 @@ class ProductDatabase {
 
   static void deleteProduct(String id) {
     _collection.doc(id).delete();
+  }
+
+  static void deleteAll() {
+    _collection.snapshots().forEach((stream) {stream.docs.forEach((doc){deleteProduct(doc.id);});});
   }
 }

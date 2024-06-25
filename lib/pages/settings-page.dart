@@ -66,6 +66,14 @@ class SettingsPage extends StatelessWidget {
                   leading: Icon(Icons.shop_2),
                   trailing: Icon(Icons.chevron_right),
                 ),
+                ListTile(
+                  onTap: () {
+                    Navigator.pushNamed(context, '/units-of-measure');
+                  },
+                  title: Text("Units Of Meaure"),
+                  leading: Icon(Icons.monitor_weight),
+                  trailing: Icon(Icons.chevron_right),
+                ),
               ],
             ),
           )

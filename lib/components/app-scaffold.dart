@@ -14,7 +14,7 @@ class AppScaffold extends StatelessWidget {
             ),
             backgroundColor: Colors.teal,
             title: const Text(
-              "Test",
+              "Bargainz",
               style: TextStyle(
                 color: Color.fromARGB(255, 244, 253, 255),
               ),
