@@ -24,7 +24,7 @@ class MainApp extends StatefulWidget {
 }
 
 class _MainAppState extends State<MainApp> {
-  int _selectedIndex = 1;
+  int _selectedIndex = 0;
 
   final List _pages = [
     Items(),
