@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "675752905076",
+    "project_id": "bargainz-8268b",
+    "storage_bucket": "bargainz-8268b.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:675752905076:android:297b1de465fcdde7d00421",
+        "android_client_info": {
+          "package_name": "com.edd.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBRn2uSEfhE02SPol1BezeVTx5BVVPCiLE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:675752905076:android:81e020c8d7085298d00421",
+        "android_client_info": {
+          "package_name": "com.example.bargainz"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBRn2uSEfhE02SPol1BezeVTx5BVVPCiLE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

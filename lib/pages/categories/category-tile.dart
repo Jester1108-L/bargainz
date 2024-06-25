@@ -3,10 +3,11 @@ import 'package:flutter_slidable/flutter_slidable.dart';
 
 class CategoryTile extends StatelessWidget {
   final String title;
+  final String unit_of_measure;
   final Function(BuildContext)? onDelete;
   final Function(BuildContext)? onEdit;
 
-  const CategoryTile({super.key, required this.title, required this.onDelete, required this.onEdit});
+  const CategoryTile({super.key, required this.title, required this.unit_of_measure, required this.onDelete, required this.onEdit});
 
   @override
   Widget build(BuildContext context) {
@@ -46,27 +47,18 @@ class CategoryTile extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
               children: [
-                Text(
-                  title,
-                  style: const TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.w400,
-                  ),
-                ),
-                const Divider(
-                  thickness: 1,
-                  color: Color.fromARGB(64, 0, 0, 0),
-                ),
-                const Padding(
-                  padding: EdgeInsets.only(top: 8),
-                  child: Text(
-                    "lorem ipsum",
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w400,
+                Row(
+                  children: [
+                    Text(
+                      title,
+                      style: const TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.w400,
+                      ),
                     ),
-                  ),
+                  ],
                 ),
+                Text("UoM: $unit_of_measure"),
               ],
             ),
           ),
