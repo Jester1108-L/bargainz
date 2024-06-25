@@ -295,11 +295,13 @@ class _ItemsState extends State<Items> {
                 List<DocumentSnapshot> docs = snapshot.data!.docs.where((doc) {return (searchTerm == null) || (doc["retailer"] == searchTerm);}).toList();
 
                 if (docs.isEmpty) {
-                  return const Padding(
-                    padding: EdgeInsets.only(top: 16.0),
-                    child: Text(
-                      'No products',
-                      style: TextStyle(color: Colors.grey),
+                  return const Center(
+                    child: Padding(
+                      padding: EdgeInsets.only(top: 16.0),
+                      child: Text(
+                        'No products',
+                        style: TextStyle(color: Colors.grey),
+                      ),
                     ),
                   );
                 }

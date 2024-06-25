@@ -34,12 +34,28 @@ class _ItemSummaryState extends State<ItemSummary> {
   }
 
   double getPricePerUoM(Product product) {
-    return (((100 * (product.price / (product.unit == 0 ? 1 : product.unit)))).roundToDouble() / 100);
+    return (((100 * (product.price / (product.unit == 0 ? 1 : product.unit))))
+            .roundToDouble() /
+        100);
   }
 
   @override
   Widget build(BuildContext context) {
-    products.sort((p1, p2){return getPricePerUoM(p1) > getPricePerUoM(p2) ? 1 : 0;});
+    products.sort((p1, p2) {
+      return getPricePerUoM(p1) > getPricePerUoM(p2) ? 1 : 0;
+    });
+
+    if (products.isEmpty) {
+      return const Center(
+        child: Padding(
+          padding: EdgeInsets.only(top: 16.0),
+          child: Text(
+            'No products',
+            style: TextStyle(color: Colors.grey),
+          ),
+        ),
+      );
+    }
 
     return Padding(
       padding: const EdgeInsets.all(16),
