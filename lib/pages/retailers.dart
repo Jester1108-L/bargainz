@@ -1,123 +1,96 @@
 import 'package:bargainz/components/app-scaffold.dart';
+import 'package:bargainz/components/stream-list-view.dart';
 import 'package:bargainz/database/retail-database.dart';
 import 'package:bargainz/models/retailer.dart';
-import 'package:bargainz/pages/retailers/retail-dialog-box.dart';
-import 'package:bargainz/pages/retailers/retail-tile.dart';
+import 'package:bargainz/pages/retailers/retailer-dialog-box.dart';
+import 'package:bargainz/pages/retailers/retailer-tile.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
 class Retailers extends StatefulWidget {
-  Retailers({super.key});
+  const Retailers({super.key});
 
   @override
   State<Retailers> createState() => _RetailersState();
 }
 
 class _RetailersState extends State<Retailers> {
-  final _controller = TextEditingController();
-
-  void onSave(bool updating, String id) {
-    setState(() {
-      Retailer retailer = Retailer(name: _controller.text, id: id);
-
-      if (updating) {
-        RetailerDatabase.updateRetailer(retailer);
-      } else {
-        RetailerDatabase.insertRetailer(retailer);
-      }
-
-      _controller.clear();
-      Navigator.of(context).pop();
-    });
-  }
-
+  // Delete retailer
   void onDelete(String id) {
     setState(() {
       RetailerDatabase.deleteRetailer(id);
     });
   }
 
-  void onEdit(String id, String name) {
+  // Edit retailer
+  void onEdit(Retailer retailer) {
     showDialog(
         context: context,
         builder: (context) {
-          _controller.text = name;
-
-          return RetailDialogBox(
-            controller: _controller,
-            onCancel: () => Navigator.of(context).pop(),
-            onSave: () => onSave(true, id),
+          return RetailerDialogBox(
+            id: retailer.id,
+            retailer: retailer,
           );
         });
   }
 
+  // Add new retailer
   void addRetailer(BuildContext context) {
     showDialog(
         context: context,
         builder: (context) {
-          return RetailDialogBox(
-            controller: _controller,
-            onCancel: () => Navigator.of(context).pop(),
-            onSave: () => onSave(false, ""),
+          return RetailerDialogBox(
+            retailer: Retailer.empty(),
           );
         });
   }
 
+  // Builder function for list view
+  ListView retailerListView(List<DocumentSnapshot> docs) {
+    return ListView(
+      scrollDirection: Axis.vertical,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: [
+            ElevatedButton(
+              onPressed: () => addRetailer(context),
+              style: const ButtonStyle(
+                  backgroundColor: WidgetStatePropertyAll(Colors.green)),
+              child: const Icon(
+                Icons.add,
+                color: Color.fromARGB(255, 244, 253, 255),
+              ),
+            ),
+          ],
+        ),
+        if (docs.isNotEmpty)
+          for (DocumentSnapshot doc in docs)
+            RetailerTile(
+              title: doc['name'],
+              onDelete: (context) => onDelete(doc.id),
+              onEdit: (context) => onEdit(Retailer.toObjectWithSnapshot(doc)),
+            ),
+        if (docs.isEmpty)
+          const Center(
+            child: Padding(
+              padding: EdgeInsets.only(top: 16.0),
+              child: Text(
+                'No retailers',
+                style: TextStyle(color: Colors.grey),
+              ),
+            ),
+          )
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    Widget childWidget = StreamBuilder<QuerySnapshot>(
+    return AppScaffold(
+        childWidget: StreamListView(
+      listViewBuilder: retailerListView,
       stream: RetailerDatabase.getRetailers(),
-      builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
-        if (snapshot.hasError) {
-          return const Text('Something went wrong');
-        }
-
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              ClipRRect(
-                borderRadius: BorderRadius.circular(20),
-                child: SizedBox(
-                  height: 250,
-                  width: 250,
-                  child: Image.asset('assets/images/image-loading.gif'),
-                ),
-              ),
-            ],
-          );
-        }
-
-        List<DocumentSnapshot> docs = snapshot.data!.docs;
-
-        return ListView(
-          scrollDirection: Axis.vertical,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                ElevatedButton(
-                  onPressed: () => addRetailer(context),
-                  style: const ButtonStyle(
-                      backgroundColor: WidgetStatePropertyAll(Colors.green)),
-                  child: const Icon(
-                    Icons.add,
-                    color: Color.fromARGB(255, 244, 253, 255),
-                  ),
-                ),
-              ],
-            ),
-            for (DocumentSnapshot doc in docs)
-              RetailTile(
-                title: doc['name'],
-                onDelete: (context) => onDelete(doc.id),
-                onEdit: (context) => onEdit(doc.id, doc["name"]),
-              )
-          ],
-        );
-      },
-    );
-
-    return AppScaffold(childWidget: childWidget);
+    ));
   }
 }

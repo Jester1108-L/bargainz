@@ -1,4 +1,5 @@
 import 'package:bargainz/components/app-scaffold.dart';
+import 'package:bargainz/components/stream-list-view.dart';
 import 'package:bargainz/database/category-database.dart';
 import 'package:bargainz/models/category.dart';
 import 'package:bargainz/pages/categories/category-dialog-box.dart';
@@ -14,91 +15,80 @@ class Categories extends StatefulWidget {
 }
 
 class _CategoriesState extends State<Categories> {
+  // Delete category
   void onDelete(String id) {
-    setState(() {
-      CategoryDatabase.deleteCategory(id);
-    });
+    CategoryDatabase.deleteCategory(id);
+    setState(() {});
   }
 
-  void onEdit(String id, String name, String unit_of_measure) {
+  // On category edit, show dialog
+  void onEdit(Category category) {
     showDialog(
         context: context,
         builder: (context) {
           return CategoryDialogBox(
-            id: id,
-            category: Category(name: name, unit_of_measure: unit_of_measure),
+            id: category.id,
+            category: category,
           );
         });
   }
 
+  // Add category
   void addCategory(BuildContext context) {
     showDialog(
         context: context,
         builder: (context) {
           return CategoryDialogBox(
-            id: null,
-            category: Category(name: "", unit_of_measure: ""),
+            category: Category.empty(),
           );
         });
   }
 
+  // Builder function for list view
+  Widget categoryListView(List<DocumentSnapshot> docs) {
+    return ListView(
+      scrollDirection: Axis.vertical,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: [
+            ElevatedButton(
+              onPressed: () => addCategory(context),
+              style: const ButtonStyle(
+                  backgroundColor: WidgetStatePropertyAll(Colors.green)),
+              child: const Icon(
+                Icons.add,
+                color: Color.fromARGB(255, 244, 253, 255),
+              ),
+            ),
+          ],
+        ),
+        if (docs.isNotEmpty)
+          for (DocumentSnapshot doc in docs)
+            CategoryTile(
+              category: Category.toObjectWithSnapshot(doc),
+              onDelete: (context) => onDelete(doc.id),
+              onEdit: (context) => onEdit(Category.toObjectWithSnapshot(doc)),
+            ),
+        if (docs.isEmpty)
+          const Center(
+            child: Padding(
+              padding: EdgeInsets.only(top: 16.0),
+              child: Text(
+                'No categories',
+                style: TextStyle(color: Colors.grey),
+              ),
+            ),
+          )
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    Widget childWidget = StreamBuilder<QuerySnapshot>(
-      stream: CategoryDatabase.getCategories(),
-      builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
-        if (snapshot.hasError) {
-          return const Text('Something went wrong');
-        }
-
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              ClipRRect(
-                borderRadius: BorderRadius.circular(20),
-                child: SizedBox(
-                  height: 250,
-                  width: 250,
-                  child: Image.asset('assets/images/image-loading.gif'),
-                ),
-              ),
-            ],
-          );
-        }
-
-        List<DocumentSnapshot> docs = snapshot.data!.docs;
-
-        return ListView(
-          scrollDirection: Axis.vertical,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                ElevatedButton(
-                  onPressed: () => addCategory(context),
-                  style: const ButtonStyle(
-                      backgroundColor: WidgetStatePropertyAll(Colors.green)),
-                  child: const Icon(
-                    Icons.add,
-                    color: Color.fromARGB(255, 244, 253, 255),
-                  ),
-                ),
-              ],
-            ),
-            for (DocumentSnapshot doc in docs)
-              CategoryTile(
-                title: doc["name"],
-                unit_of_measure: doc["unit_of_measure"],
-                onDelete: (context) => onDelete(doc.id),
-                onEdit: (context) =>
-                    onEdit(doc.id, doc["name"], doc["unit_of_measure"]),
-              )
-          ],
-        );
-      },
-    );
-
-    return AppScaffold(childWidget: childWidget);
+    return AppScaffold(
+        childWidget: StreamListView(
+            stream: CategoryDatabase.getCategories(),
+            listViewBuilder: categoryListView));
   }
 }

@@ -105,7 +105,7 @@ class _NewProductState extends State<NewProduct> {
                     DropdownMenuItem(
                       child: Text(retailer.name),
                       value: retailer.name,
-                      key: Key(retailer.id),
+                      key: Key(retailer.id ?? ''),
                     )
                 ],
                 name: 'retailer',

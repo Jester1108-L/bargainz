@@ -1,26 +1,28 @@
+import 'package:bargainz/database/firebase-database.dart';
 import 'package:bargainz/models/unit-of-measure.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
+// Database class for unit of measure operations
 class UnitsOfMeasureDatabase {
-  static final CollectionReference<Map<String, dynamic>> _collection =
-      FirebaseFirestore.instance.collection('unitsofmeasure');
+  static final FirebaseDatabase baseDatabase = FirebaseDatabase(collection_name: 'unitsofmeasure');
 
+  // Get stream of units of measure
   static Stream<QuerySnapshot<Map<String, dynamic>>> getUnitsOfMeasure() {
-    return _collection.snapshots();
+    return baseDatabase.getSnapshots();
   }
 
-  static Future<String> insertUnitOfMeasure(
-      UnitOfMeasure unit_of_measure) async {
-    return await _collection.add(unit_of_measure.toMap()).then((docRef) {
-      return docRef.id;
-    });
+  // Insert unit of measure
+  static Future<String> insertUnitOfMeasure(UnitOfMeasure unit_of_measure) async {
+    return await baseDatabase.insertDoc(unit_of_measure);
   }
 
+  // Update unit of measure
   static Future<void> updateUnitOfMeasure(UnitOfMeasure unit_of_measure) {
-    return _collection.doc(unit_of_measure.id).set(unit_of_measure.toMap());
+    return baseDatabase.updateDoc(unit_of_measure);
   }
 
-  static void deleteUnitOfMeasure(String id) {
-    _collection.doc(id).delete();
+  // Delete unit of measure
+  static Future<void> deleteUnitOfMeasure(String id) {
+    return baseDatabase.deleteDoc(id);
   }
 }

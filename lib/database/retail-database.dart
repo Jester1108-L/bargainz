@@ -1,37 +1,37 @@
+import 'package:bargainz/database/firebase-database.dart';
 import 'package:bargainz/models/retailer.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
+// Database class for retailer operations
 class RetailerDatabase {
-  static final CollectionReference<Map<String, dynamic>> _collection =
-      FirebaseFirestore.instance.collection('retailers');
+  static final FirebaseDatabase baseDatabase = FirebaseDatabase(collection_name: 'retailers');
 
+  // Get stream of retailers
   static Stream<QuerySnapshot<Map<String, dynamic>>> getRetailers() {
-    return _collection.snapshots();
+    return baseDatabase.getSnapshots();
   }
 
-  static Future<Stream<QuerySnapshot<Map<String, dynamic>>>> getRetailersAsFuture() async {
-    return _collection.snapshots();
-  }
-
+  // Get listing of retailers
   static Future<List<Retailer>> getRetailersListing() async {
-    return await _collection.get().then((snapshot) {
+    return await baseDatabase.collection.get().then((snapshot) {
       return snapshot.docs
           .map((el) => Retailer(name: el['name'], id: el.id))
           .toList();
     });
   }
 
+  // Insert retailer
   static Future<String> insertRetailer(Retailer retailer) async {
-    return await _collection.add(retailer.toMap()).then((docRef) {
-      return docRef.id;
-    });
+    return await baseDatabase.insertDoc(retailer);
   }
 
+  // Update retailer
   static Future<void> updateRetailer(Retailer retailer) {
-    return _collection.doc(retailer.id).set(retailer.toMap());
+    return baseDatabase.updateDoc(retailer);
   }
 
-  static void deleteRetailer(String id) {
-    _collection.doc(id).delete();
+  // Delete retailer
+  static Future<void> deleteRetailer(String id) {
+    return baseDatabase.deleteDoc(id);
   }
 }

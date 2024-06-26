@@ -3,14 +3,14 @@ import 'package:bargainz/models/product.dart';
 import 'package:data_table_2/data_table_2.dart';
 import 'package:flutter/material.dart';
 
-class ItemSummary extends StatefulWidget {
-  ItemSummary({super.key});
+class ProductSummary extends StatefulWidget {
+  const ProductSummary({super.key});
 
   @override
-  State<ItemSummary> createState() => _ItemSummaryState();
+  State<ProductSummary> createState() => _ProductSummaryState();
 }
 
-class _ItemSummaryState extends State<ItemSummary> {
+class _ProductSummaryState extends State<ProductSummary> {
   List<Product> products = [];
 
   @override
@@ -19,20 +19,13 @@ class _ItemSummaryState extends State<ItemSummary> {
 
     ProductDatabase.getProducts().forEach((stream) {
       products = stream.docs.map((el) {
-        return Product(
-            barcode: el["barcode"],
-            name: el["name"],
-            category: el["category"],
-            price: el["price"],
-            unit: el["unit"],
-            retailer: el["retailer"],
-            unit_of_measure: el["unit_of_measure"],
-            description: el["description"]);
+        return Product.toObjectWithSnapshot(el);
       }).toList();
       setState(() {});
     });
   }
 
+  // Calculate price of product per unit of measure
   double getPricePerUoM(Product product) {
     return (((100 * (product.price / (product.unit == 0 ? 1 : product.unit))))
             .roundToDouble() /

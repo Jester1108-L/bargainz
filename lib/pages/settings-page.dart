@@ -1,3 +1,5 @@
+import 'package:bargainz/constants/settings-navigation.dart';
+import 'package:bargainz/models/navigation-page.dart';
 import 'package:flutter/material.dart';
 
 class SettingsPage extends StatelessWidget {
@@ -8,7 +10,7 @@ class SettingsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.symmetric(vertical: 16.0, horizontal: 12),
+      padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 12),
       child: Column(
         children: [
           Row(
@@ -50,30 +52,15 @@ class SettingsPage extends StatelessWidget {
             padding: const EdgeInsets.only(top: 8),
             child: Column(
               children: [
-                ListTile(
-                  onTap: () {
-                    Navigator.pushNamed(context, '/categories');
-                  },
-                  title: Text("Categories"),
-                  leading: Icon(Icons.account_tree),
-                  trailing: Icon(Icons.chevron_right),
-                ),
-                ListTile(
-                  onTap: () {
-                    Navigator.pushNamed(context, '/retailers');
-                  },
-                  title: Text("Retailers"),
-                  leading: Icon(Icons.shop_2),
-                  trailing: Icon(Icons.chevron_right),
-                ),
-                ListTile(
-                  onTap: () {
-                    Navigator.pushNamed(context, '/units-of-measure');
-                  },
-                  title: Text("Units Of Meaure"),
-                  leading: Icon(Icons.monitor_weight),
-                  trailing: Icon(Icons.chevron_right),
-                ),
+                for (NavigationPage page in SettingsNavigation)
+                  ListTile(
+                    onTap: () {
+                      Navigator.pushNamed(context, page.route ?? '/');
+                    },
+                    title: Text(page.title),
+                    leading: Icon(page.icon),
+                    trailing: const Icon(Icons.chevron_right),
+                  )
               ],
             ),
           )

@@ -1,16 +1,19 @@
+import 'package:bargainz/database/firebase-database.dart';
 import 'package:bargainz/models/product.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
+// Database class for product operations
 class ProductDatabase {
-  static final CollectionReference<Map<String, dynamic>> _collection =
-      FirebaseFirestore.instance.collection('products');
+  static final FirebaseDatabase baseDatabase = FirebaseDatabase(collection_name: 'products');
 
+  // Get stream of units of measure
   static Stream<QuerySnapshot<Map<String, dynamic>>> getProducts() {
-    return _collection.snapshots();
+    return baseDatabase.getSnapshots();
   }
 
+  // Get listing of products in collection
   static Future<List<Product>> getProductListing() async {
-    return await _collection.get().then((snapshot) {
+    return await baseDatabase.collection.get().then((snapshot) {
       return snapshot.docs
           .map((el) => Product(
               barcode: el["barcode"],
@@ -26,21 +29,23 @@ class ProductDatabase {
     });
   }
 
+  // Insert unit of measure
   static Future<String> insertProduct(Product product) async {
-    return await _collection.add(product.toMap()).then((docRef) {
-      return docRef.id;
-    });
+    return await baseDatabase.insertDoc(product);
   }
 
+  // Update unit of measure
   static Future<void> updateProduct(Product product) {
-    return _collection.doc(product.id).set(product.toMap());
+    return baseDatabase.updateDoc(product);
   }
 
-  static void deleteProduct(String id) {
-    _collection.doc(id).delete();
+  // Delete unit of measure
+  static Future<void> deleteProduct(String id) {
+    return baseDatabase.deleteDoc(id);
   }
 
-  static void deleteAll() {
-    _collection.snapshots().forEach((stream) {stream.docs.forEach((doc){deleteProduct(doc.id);});});
+  // Delete all docs in collection
+  static Future<void> deleteAll() {
+    return baseDatabase.collection.snapshots().forEach((stream) {stream.docs.forEach((doc){deleteProduct(doc.id);});});
   }
 }
