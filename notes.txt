@@ -15,6 +15,10 @@ Color.fromARGB(255, 255, 133, 82),
 Color.fromARGB(255, 244, 253, 255),
 
 
+Image.file(file: FileImage.) FadeInImage.assetNetwork(
+                    placeholder: 'assets/images/image-loading.gif',
+                    image: 'assets/images/image-loading.gif',
+                  )
 
 
 items
