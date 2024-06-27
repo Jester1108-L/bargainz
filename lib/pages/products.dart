@@ -71,7 +71,10 @@ class _ProductsState extends State<Products> {
                           ),
                         );
                       },
-                      child: const Text("OK", style: TextStyle(color: Colors.teal),),
+                      child: const Text(
+                        "OK",
+                        style: TextStyle(color: Colors.teal),
+                      ),
                     ),
                     ElevatedButton(
                       style: ElevatedButton.styleFrom(
@@ -81,7 +84,10 @@ class _ProductsState extends State<Products> {
                       onPressed: () {
                         Navigator.pop(context);
                       },
-                      child: const Text("Cancel", style: TextStyle(color: Colors.teal),),
+                      child: const Text(
+                        "Cancel",
+                        style: TextStyle(color: Colors.teal),
+                      ),
                     ),
                   ],
                 ),
@@ -111,7 +117,10 @@ class _ProductsState extends State<Products> {
                       onPressed: () {
                         Navigator.pop(context);
                       },
-                      child: const Text("OK", style: TextStyle(color: Colors.teal),),
+                      child: const Text(
+                        "OK",
+                        style: TextStyle(color: Colors.teal),
+                      ),
                     ),
                   ],
                 ),
@@ -161,7 +170,10 @@ class _ProductsState extends State<Products> {
                           print(e);
                         }
                       },
-                      child: const Icon(Icons.camera_alt, color: Colors.white,),
+                      child: const Icon(
+                        Icons.camera_alt,
+                        color: Colors.white,
+                      ),
                     ),
                   ],
                 ),

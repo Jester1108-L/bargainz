@@ -5,6 +5,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 class Product implements Base {
   @override
   String? id;
+  String? product_history_id;
   String barcode;
   final String name;
   final String description;
@@ -23,6 +24,7 @@ class Product implements Base {
       required this.price,
       required this.unit,
       required this.unit_of_measure,
+      this.product_history_id,
       this.id});
 
   Product.empty(
@@ -34,6 +36,7 @@ class Product implements Base {
       this.price = 0,
       this.unit = 0,
       this.unit_of_measure = '',
+      this.product_history_id = '',
       this.id});
 
   @override
@@ -41,6 +44,7 @@ class Product implements Base {
     return {
       'id': id,
       'barcode': barcode,
+      'product_history_id': product_history_id,
       'name': name,
       'description': description,
       'category': category,
@@ -59,8 +63,9 @@ class Product implements Base {
         category: map['category'] ?? '',
         retailer: map['retailer'] ?? '',
         unit_of_measure: map['unit_of_measure'] ?? '',
-        price: double.parse(map['price']),
-        unit: double.parse(map['unit']),
+        product_history_id: map["product_history_id"],
+        price: map['price'],
+        unit: map['unit'],
         id: map['id'] ?? '');
   }
 
@@ -72,6 +77,7 @@ class Product implements Base {
         category: doc['category'] ?? '',
         retailer: doc['retailer'] ?? '',
         unit_of_measure: doc['unit_of_measure'] ?? '',
+        product_history_id: doc["product_history_id"],
         price: doc["price"],
         unit: doc["unit"],
         id: doc.id);

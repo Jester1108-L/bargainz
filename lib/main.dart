@@ -1,5 +1,6 @@
 import 'package:bargainz/components/app-scaffold.dart';
 import 'package:bargainz/pages/categories.dart';
+import 'package:bargainz/pages/history.dart';
 import 'package:bargainz/pages/retailers.dart';
 import 'package:bargainz/pages/units-of-measure.dart';
 import 'package:flutter/material.dart';
@@ -24,6 +25,7 @@ class _MainAppState extends State<MainApp> {
     '/categories': (context) => const Categories(),
     '/retailers': (context) => const Retailers(),
     '/units-of-measure': (context) => const UnitsOfMeasure(),
+    '/product-history': (context) => const History(),
   };
 
   @override

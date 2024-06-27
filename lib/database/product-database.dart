@@ -1,10 +1,15 @@
 import 'package:bargainz/database/firebase-database.dart';
+import 'package:bargainz/database/product-history-database.dart';
+import 'package:bargainz/models/product-history.dart';
 import 'package:bargainz/models/product.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 // Database class for product operations
 class ProductDatabase {
-  static final FirebaseDatabase baseDatabase = FirebaseDatabase(collection_name: 'products');
+  static FirebaseDatabase baseDatabase =
+      FirebaseDatabase(collection_name: 'products');
+  static final FirebaseDatabase productHistoryBase =
+      FirebaseDatabase(collection_name: 'product-history-products');
 
   // Get stream of units of measure
   static Stream<QuerySnapshot<Map<String, dynamic>>> getProducts() {
@@ -15,16 +20,18 @@ class ProductDatabase {
   static Future<List<Product>> getProductListing() async {
     return await baseDatabase.collection.get().then((snapshot) {
       return snapshot.docs
-          .map((el) => Product(
-              barcode: el["barcode"],
-              name: el["name"],
-              description: el["description"],
-              category: el["category"],
-              unit_of_measure: el["unit_of_measure"],
-              retailer: el["retailer"],
-              unit: el["unit"],
-              price: el["price"],
-              id: el.id))
+          .map((el) => Product.toObjectWithSnapshot(el))
+          .toList();
+    });
+  }
+
+  // Get listing of products in collection
+  static Future<List<Product>> getProductHistoryListing(
+      {required String history_id}) async {
+    return await productHistoryBase.collection.get().then((snapshot) {
+      return snapshot.docs
+          .map((el) => Product.toObjectWithSnapshot(el))
+          .where((product) => (product.product_history_id == history_id))
           .toList();
     });
   }
@@ -45,7 +52,18 @@ class ProductDatabase {
   }
 
   // Delete all docs in collection
-  static Future<void> deleteAll() {
-    return baseDatabase.collection.snapshots().forEach((stream) {stream.docs.forEach((doc){deleteProduct(doc.id);});});
+  static Future<void> deleteAll() async {
+    ProductHistory product_history =
+        ProductHistory(created: DateTime.now().toString());
+
+    product_history.products = await getProductListing();
+
+    if (product_history.products.isNotEmpty) {
+      await ProductHistoryDatabase.insertProductHistory(product_history);
+    }
+
+    for (Product product in product_history.products) {
+        await deleteProduct(product.id ?? "");
+    }
   }
 }
