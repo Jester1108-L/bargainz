@@ -27,6 +27,85 @@ class _ProductsState extends State<Products> {
     setState(() {});
   }
 
+  void onBarcodeConfirm(String barcode) async {
+    Product product = await ProductDatabase.getProduct(barcode);
+    Navigator.pop(context);
+
+    if (product.barcode.isNotEmpty) {
+      showDialog(
+          context: context,
+          builder: (context) {
+            return AlertDialog(
+              content: SizedBox(
+                height: 150,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Center(
+                      child: Text(
+                          "Barcode already exists. Would you like to create a new entry?"),
+                    ),
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        elevation: 8,
+                        minimumSize: const Size.fromHeight(32),
+                      ),
+                      onPressed: () {
+                        Product newProduct = Product.empty();
+
+                        newProduct.barcode = product.barcode;
+                        newProduct.name = product.name;
+                        newProduct.description = product.description;
+
+                        Navigator.pop(context);
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute<void>(
+                            builder: (BuildContext context) => NewProduct(
+                              id: null,
+                              product: newProduct,
+                            ),
+                          ),
+                        );
+                      },
+                      child: const Text(
+                        "Yes",
+                        style: TextStyle(color: Colors.teal),
+                      ),
+                    ),
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        elevation: 8,
+                        minimumSize: const Size.fromHeight(32),
+                      ),
+                      onPressed: () {
+                        Navigator.pop(context);
+                      },
+                      child: const Text(
+                        "No",
+                        style: TextStyle(color: Colors.teal),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          });
+    } else {
+      product.barcode = barcode;
+      Navigator.push(
+        context,
+        MaterialPageRoute<void>(
+          builder: (BuildContext context) => NewProduct(
+            id: null,
+            product: product,
+          ),
+        ),
+      );
+    }
+  }
+
   // Process barcode on image scanned
   void onBarcodeScanned(String? barcode) async {
     Navigator.pop(context);
@@ -60,16 +139,7 @@ class _ProductsState extends State<Products> {
                         minimumSize: const Size.fromHeight(32),
                       ),
                       onPressed: () {
-                        Navigator.pop(context);
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute<void>(
-                            builder: (BuildContext context) => NewProduct(
-                              id: null,
-                              product: product,
-                            ),
-                          ),
-                        );
+                        onBarcodeConfirm(barcode);
                       },
                       child: const Text(
                         "OK",
@@ -223,6 +293,11 @@ class _ProductsState extends State<Products> {
   }
 
   @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
@@ -247,7 +322,7 @@ class _ProductsState extends State<Products> {
                 searchTerm = text;
                 setState(() {});
               },
-              hintText: "Search Retails...",
+              hintText: "Search Retailers...",
               trailing: [
                 ElevatedButton(
                   onPressed: () {
@@ -305,7 +380,55 @@ class _ProductsState extends State<Products> {
                   ),
                 ),
                 ElevatedButton(
-                  onPressed: () => ProductDatabase.deleteAll(),
+                  onPressed: () => {
+                    showDialog(
+                        context: context,
+                        builder: (context) {
+                          return AlertDialog(
+                            content: SizedBox(
+                              height: 150,
+                              child: Column(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const Center(
+                                    child: Text(
+                                        "Are you sure you would like to delete all products?"),
+                                  ),
+                                  ElevatedButton(
+                                    style: ElevatedButton.styleFrom(
+                                      elevation: 8,
+                                      minimumSize: const Size.fromHeight(32),
+                                    ),
+                                    onPressed: () {
+                                      ProductDatabase.deleteAll();
+                                      Navigator.pop(context);
+                                    },
+                                    child: const Text(
+                                      "Yes",
+                                      style: TextStyle(color: Colors.teal),
+                                    ),
+                                  ),
+                                  ElevatedButton(
+                                    style: ElevatedButton.styleFrom(
+                                      elevation: 8,
+                                      minimumSize: const Size.fromHeight(32),
+                                    ),
+                                    onPressed: () {
+                                      Navigator.pop(context);
+                                    },
+                                    child: const Text(
+                                      "No",
+                                      style: TextStyle(color: Colors.teal),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          );
+                        })
+                  },
                   style: const ButtonStyle(
                       elevation: WidgetStatePropertyAll(8),
                       backgroundColor: WidgetStatePropertyAll(Colors.white)),
