@@ -6,17 +6,23 @@ import 'package:flutter/material.dart';
 class AppScaffold extends StatefulWidget {
   final Widget? childWidget;
 
+  String? title;
   bool showNavigationBar;
+  bool showBackButton;
 
   AppScaffold(
-      {super.key, this.childWidget, this.showNavigationBar = false});
+      {super.key,
+      this.title,
+      this.childWidget,
+      this.showNavigationBar = false,
+      this.showBackButton = true});
 
   @override
   State<AppScaffold> createState() => _AppScaffoldState();
 }
 
 class _AppScaffoldState extends State<AppScaffold> {
-  int _selectedIndex = 2;
+  int _selectedIndex = 0;
 
   // Set the selected navigation index and refresh the widget states
   void onNavigationItemClick(int index) {
@@ -29,17 +35,18 @@ class _AppScaffoldState extends State<AppScaffold> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        leading: const BackButton(
-          color: Colors.white,
-        ),
+        leading: widget.showBackButton
+            ? const BackButton(
+                color: Colors.white,
+              )
+            : null,
         backgroundColor: Colors.teal,
         title: Text(
-          widget.showNavigationBar
+          widget.title == null
               ? BottomNavigation[_selectedIndex].title
-              : "Bargainz",
-          style: const TextStyle(
-            color: Colors.white,
-          ),
+              : widget.title ?? "Bargainz",
+          style:
+              const TextStyle(color: Colors.white, fontWeight: FontWeight.w600),
         ),
         centerTitle: true,
         shadowColor: Colors.black,
@@ -48,7 +55,7 @@ class _AppScaffoldState extends State<AppScaffold> {
       body: widget.showNavigationBar
           ? BottomNavigation[_selectedIndex].page
           : Padding(
-              padding: const EdgeInsets.only(top: 32, left: 8, right: 8),
+              padding: const EdgeInsets.only(top: 24, left: 8, right: 8),
               child: widget.childWidget,
             ),
       bottomNavigationBar: widget.showNavigationBar

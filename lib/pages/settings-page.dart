@@ -3,7 +3,7 @@ import 'package:bargainz/models/navigation-page.dart';
 import 'package:flutter/material.dart';
 
 class SettingsPage extends StatelessWidget {
-  final double imgSize = 250;
+  final double imgSize = 200;
 
   const SettingsPage({super.key});
 
@@ -17,7 +17,7 @@ class SettingsPage extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               ClipRRect(
-                borderRadius: BorderRadius.circular(20),
+                borderRadius: BorderRadius.circular(24),
                 child: SizedBox(
                   height: imgSize,
                   width: imgSize,
@@ -37,7 +37,7 @@ class SettingsPage extends StatelessWidget {
               children: [
                 Text(
                   "James-Thomas De Jager",
-                  style: TextStyle(fontWeight: FontWeight.w500, fontSize: 24),
+                  style: TextStyle(fontWeight: FontWeight.w500, fontSize: 24, color: Colors.teal),
                 )
               ],
             ),
@@ -59,7 +59,7 @@ class SettingsPage extends StatelessWidget {
                     },
                     title: Text(page.title),
                     leading: Icon(page.icon),
-                    trailing: const Icon(Icons.chevron_right),
+                    trailing: const Icon(Icons.chevron_right, color: Colors.teal),
                   )
               ],
             ),

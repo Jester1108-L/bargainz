@@ -13,6 +13,114 @@ class ProductSummary extends StatefulWidget {
 class _ProductSummaryState extends State<ProductSummary> {
   List<Product> products = [];
 
+  // Calculate price of product per unit of measure
+  double getPricePerUoM(Product product) {
+    return (((100 * (product.price / (product.unit == 0 ? 1 : product.unit))))
+            .roundToDouble() /
+        100);
+  }
+
+  // Display dialog on row click with more product details
+  void onRowClick(Product product) {
+    showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+              content: SizedBox(
+            height: 250,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(children: [
+                  const Text(
+                    "Name: ",
+                    style: TextStyle(color: Colors.teal),
+                  ),
+                  Text(
+                    product.name,
+                  ),
+                ]),
+                Row(children: [
+                  const Text(
+                    "Description: ",
+                    style: TextStyle(color: Colors.teal),
+                  ),
+                  Text(
+                    product.description,
+                  ),
+                ]),
+                Row(children: [
+                  const Text(
+                    "Barcode: ",
+                    style: TextStyle(color: Colors.teal),
+                  ),
+                  Text(
+                    product.barcode,
+                  ),
+                ]),
+                Row(children: [
+                  const Text(
+                    "Category: ",
+                    style: TextStyle(color: Colors.teal),
+                  ),
+                  Text(
+                    product.category,
+                  ),
+                ]),
+                Row(children: [
+                  const Text(
+                    "Retailer: ",
+                    style: TextStyle(color: Colors.teal),
+                  ),
+                  Text(
+                    product.retailer,
+                  ),
+                ]),
+                Row(children: [
+                  const Text(
+                    "Price: ",
+                    style: TextStyle(color: Colors.teal),
+                  ),
+                  Text(
+                    "R${product.price}",
+                  ),
+                ]),
+                Row(children: [
+                  const Text(
+                    "Units: ",
+                    style: TextStyle(color: Colors.teal),
+                  ),
+                  Text(
+                    "${product.unit} ${product.unit_of_measure}",
+                  ),
+                ]),
+                Padding(
+                  padding: const EdgeInsets.only(top: 16.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      ElevatedButton(
+                          onPressed: () {
+                            Navigator.pop(context);
+                          },
+                          style: ButtonStyle(
+                              elevation: const WidgetStatePropertyAll(8),
+                              backgroundColor:
+                                  WidgetStateProperty.all(Colors.white)),
+                          child: const Text(
+                            "OK",
+                            style: TextStyle(color: Colors.teal),
+                          )),
+                    ],
+                  ),
+                )
+              ],
+            ),
+          ));
+        });
+  }
+
   @override
   void initState() {
     super.initState();
@@ -23,13 +131,6 @@ class _ProductSummaryState extends State<ProductSummary> {
       }).toList();
       setState(() {});
     });
-  }
-
-  // Calculate price of product per unit of measure
-  double getPricePerUoM(Product product) {
-    return (((100 * (product.price / (product.unit == 0 ? 1 : product.unit))))
-            .roundToDouble() /
-        100);
   }
 
   @override
@@ -69,6 +170,9 @@ class _ProductSummaryState extends State<ProductSummary> {
         opacityVariant = opacityVariant < 100 ? 100 : opacityVariant;
 
         rows.add(DataRow(
+            onLongPress: () {
+              onRowClick(product);
+            },
             color: WidgetStatePropertyAll(isOdd
                 ? Colors.teal[opacityVariant]
                 : Colors.green[opacityVariant]),
@@ -90,7 +194,8 @@ class _ProductSummaryState extends State<ProductSummary> {
       padding: const EdgeInsets.all(16),
       child: DataTable2(
         columnSpacing: 8,
-        minWidth: 400,
+        minWidth: 500,
+        dataRowHeight: 64,
         columns: const [
           DataColumn2(
             fixedWidth: 48,
@@ -115,7 +220,7 @@ class _ProductSummaryState extends State<ProductSummary> {
             label: Text('UoM'),
           ),
           DataColumn2(
-            fixedWidth: 48,
+            fixedWidth: 80,
             label: Text('Price/UoM'),
           ),
         ],

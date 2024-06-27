@@ -68,8 +68,12 @@ class _RetailerDialogBoxState extends State<RetailerDialogBox> {
                     }
                   },
                   style: ButtonStyle(
-                      backgroundColor: WidgetStateProperty.all(Colors.green)),
-                  child: const Text("Save"),
+                      elevation: const WidgetStatePropertyAll(8),
+                      backgroundColor: WidgetStateProperty.all(Colors.white)),
+                  child: Text(
+                    widget.id != null ? "Update" : "Create",
+                    style: const TextStyle(color: Colors.teal),
+                  ),
                 ),
               )
             ],
@@ -79,7 +83,7 @@ class _RetailerDialogBoxState extends State<RetailerDialogBox> {
     );
 
     return AlertDialog(
-      content: SizedBox(height: 170, child: childWidget),
+      content: SizedBox(height: 190, child: childWidget),
     );
   }
 }

@@ -5,7 +5,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 class Product implements Base {
   @override
   String? id;
-  final String barcode;
+  String barcode;
   final String name;
   final String description;
   final String category;

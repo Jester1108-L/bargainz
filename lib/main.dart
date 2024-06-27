@@ -28,10 +28,21 @@ class _MainAppState extends State<MainApp> {
 
   @override
   Widget build(BuildContext context) {
+    ColorScheme appColors = ColorScheme.fromSeed(seedColor: Colors.teal);
+
     return MaterialApp(
       debugShowCheckedModeBanner: false,
+      theme: ThemeData(
+        useMaterial3: true,
+        colorScheme: appColors, //<--this
+        textTheme: const TextTheme(
+            titleLarge: TextStyle(color: Colors.teal)), //<--and this
+      ),
       routes: routes,
-      home: AppScaffold(showNavigationBar: true,),
+      home: AppScaffold(
+        showNavigationBar: true,
+        showBackButton: false,
+      ),
     );
   }
 }

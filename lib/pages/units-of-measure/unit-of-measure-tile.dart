@@ -40,7 +40,7 @@ class UnitOfMeasureTile extends StatelessWidget {
           ],
         ),
         child: Card(
-          elevation: 8,
+          elevation: 4,
           child: Padding(
             padding: const EdgeInsets.all(12),
             child: Column(

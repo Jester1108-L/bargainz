@@ -3,8 +3,8 @@ import 'package:bargainz/database/product-database.dart';
 import 'package:bargainz/database/retail-database.dart';
 import 'package:bargainz/models/product.dart';
 import 'package:bargainz/models/retailer.dart';
-import 'package:bargainz/pages/items/product-tile.dart';
-import 'package:bargainz/pages/items/new-product.dart';
+import 'package:bargainz/pages/products/product-tile.dart';
+import 'package:bargainz/pages/products/new-product.dart';
 import 'package:camera/camera.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
@@ -34,6 +34,8 @@ class _ProductsState extends State<Products> {
     if (barcode != null) {
       Product product = Product.empty();
 
+      product.barcode = barcode;
+
       showDialog(
           context: context,
           builder: (context) {
@@ -54,6 +56,7 @@ class _ProductsState extends State<Products> {
                     ),
                     ElevatedButton(
                       style: ElevatedButton.styleFrom(
+                        elevation: 8,
                         minimumSize: const Size.fromHeight(32),
                       ),
                       onPressed: () {
@@ -68,16 +71,17 @@ class _ProductsState extends State<Products> {
                           ),
                         );
                       },
-                      child: const Text("OK"),
+                      child: const Text("OK", style: TextStyle(color: Colors.teal),),
                     ),
                     ElevatedButton(
                       style: ElevatedButton.styleFrom(
+                        elevation: 8,
                         minimumSize: const Size.fromHeight(32),
                       ),
                       onPressed: () {
                         Navigator.pop(context);
                       },
-                      child: const Text("Cancel"),
+                      child: const Text("Cancel", style: TextStyle(color: Colors.teal),),
                     ),
                   ],
                 ),
@@ -101,12 +105,13 @@ class _ProductsState extends State<Products> {
                     ),
                     ElevatedButton(
                       style: ElevatedButton.styleFrom(
+                        elevation: 8,
                         minimumSize: const Size.fromHeight(32),
                       ),
                       onPressed: () {
                         Navigator.pop(context);
                       },
-                      child: const Text("OK"),
+                      child: const Text("OK", style: TextStyle(color: Colors.teal),),
                     ),
                   ],
                 ),
@@ -137,6 +142,8 @@ class _ProductsState extends State<Products> {
                     CameraPreview(cameraController),
                     ElevatedButton(
                       style: ElevatedButton.styleFrom(
+                        elevation: 8,
+                        backgroundColor: Colors.teal,
                         minimumSize: const Size.fromHeight(32),
                       ),
                       onPressed: () async {
@@ -154,7 +161,7 @@ class _ProductsState extends State<Products> {
                           print(e);
                         }
                       },
-                      child: const Icon(Icons.camera_alt),
+                      child: const Icon(Icons.camera_alt, color: Colors.white,),
                     ),
                   ],
                 ),
@@ -178,20 +185,22 @@ class _ProductsState extends State<Products> {
       );
     }
 
+    final products = docs.map((doc) => Product.toObjectWithSnapshot(doc));
+
     return ListView(
       scrollDirection: Axis.vertical,
       children: [
-        for (DocumentSnapshot doc in docs)
+        for (Product product in products)
           ProductTile(
-            product: Product.toObjectWithSnapshot(doc),
-            onDelete: (context) => onDelete(doc.id),
+            product: product,
+            onDelete: (context) => onDelete(product.id ?? ""),
             onEdit: (context) {
               Navigator.push(
                 context,
                 MaterialPageRoute<void>(
                   builder: (BuildContext context) => NewProduct(
-                    product: Product.toObjectWithSnapshot(doc),
-                    id: doc.id,
+                    product: product,
+                    id: product.id,
                   ),
                 ),
               );
@@ -210,9 +219,10 @@ class _ProductsState extends State<Products> {
           SearchAnchor(
               builder: (BuildContext context, SearchController controller) {
             return SearchBar(
+              backgroundColor: WidgetStatePropertyAll(Colors.white),
               controller: controller,
               padding: const WidgetStatePropertyAll<EdgeInsets>(
-                  EdgeInsets.symmetric(horizontal: 16.0)),
+                  EdgeInsets.symmetric(horizontal: 8.0)),
               onTap: () async {
                 _retailers = await RetailerDatabase.getRetailersListing();
 
@@ -233,9 +243,13 @@ class _ProductsState extends State<Products> {
                     setState(() {});
                   },
                   style: const ButtonStyle(
+                      elevation: WidgetStatePropertyAll(4),
                       padding: WidgetStatePropertyAll<EdgeInsets>(
                           EdgeInsets.all(0))),
-                  child: const Icon(Icons.search),
+                  child: const Icon(
+                    Icons.search,
+                    color: Colors.teal,
+                  ),
                 )
               ],
             );
@@ -271,19 +285,21 @@ class _ProductsState extends State<Products> {
                 ElevatedButton(
                   onPressed: () => onCameraDisplay(),
                   style: const ButtonStyle(
-                      backgroundColor: WidgetStatePropertyAll(Colors.blue)),
+                      elevation: WidgetStatePropertyAll(8),
+                      backgroundColor: WidgetStatePropertyAll(Colors.white)),
                   child: const Icon(
                     Icons.camera,
-                    color: Color.fromARGB(255, 244, 253, 255),
+                    color: Colors.teal,
                   ),
                 ),
                 ElevatedButton(
                   onPressed: () => ProductDatabase.deleteAll(),
                   style: const ButtonStyle(
-                      backgroundColor: WidgetStatePropertyAll(Colors.red)),
+                      elevation: WidgetStatePropertyAll(8),
+                      backgroundColor: WidgetStatePropertyAll(Colors.white)),
                   child: const Icon(
                     Icons.delete,
-                    color: Color.fromARGB(255, 244, 253, 255),
+                    color: Colors.teal,
                   ),
                 ),
               ],

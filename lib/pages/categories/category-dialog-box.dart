@@ -76,17 +76,15 @@ class _CategoryDialogBoxState extends State<CategoryDialogBox> {
                 ]),
               ),
               Padding(
-                padding: const EdgeInsets.only(top: 8.0),
-                child: FilledButton(
+                padding: const EdgeInsets.only(top: 16.0),
+                child: ElevatedButton(
                   onPressed: () {
                     bool valid =
                         _formKey.currentState?.saveAndValidate() ?? false;
 
                     if (valid) {
                       final data = _formKey.currentState?.value;
-                      Category category = Category(
-                          name: data?["name"],
-                          unit_of_measure: data?["unit_of_measure"]);
+                      Category category = Category.toObject(data ?? {});
 
                       if (widget.id != null) {
                         category.id = widget.id;
@@ -100,8 +98,9 @@ class _CategoryDialogBoxState extends State<CategoryDialogBox> {
                     }
                   },
                   style: ButtonStyle(
-                      backgroundColor: WidgetStateProperty.all(Colors.green)),
-                  child: const Text("Save"),
+                      elevation: const WidgetStatePropertyAll(8),
+                      backgroundColor: WidgetStateProperty.all(Colors.white)),
+                  child: Text(widget.id != null ? "Update" : "Create", style: const TextStyle(color: Colors.teal),),
                 ),
               )
             ],
@@ -111,7 +110,7 @@ class _CategoryDialogBoxState extends State<CategoryDialogBox> {
     );
 
     return AlertDialog(
-      content: SizedBox(height: 220, child: childWidget),
+      content: SizedBox(height: 280, child: childWidget),
     );
   }
 }

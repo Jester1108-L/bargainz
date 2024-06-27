@@ -45,6 +45,13 @@ class _UnitOfMeasureDialogBoxState extends State<UnitOfMeasureDialogBox> {
                   FormBuilderValidators.required(),
                 ]),
               ),
+              FormBuilderTextField(
+                name: 'code',
+                decoration: const InputDecoration(labelText: 'Code'),
+                validator: FormBuilderValidators.compose([
+                  FormBuilderValidators.required(),
+                ]),
+              ),
               Padding(
                 padding: const EdgeInsets.only(top: 8.0),
                 child: FilledButton(
@@ -54,21 +61,28 @@ class _UnitOfMeasureDialogBoxState extends State<UnitOfMeasureDialogBox> {
 
                     if (valid) {
                       final data = _formKey.currentState?.value;
-                      UnitOfMeasure unit_of_measure = UnitOfMeasure.toObject(data ?? {});
+                      UnitOfMeasure unit_of_measure =
+                          UnitOfMeasure.toObject(data ?? {});
 
                       if (widget.id != null) {
                         unit_of_measure.id = widget.id;
-                        UnitsOfMeasureDatabase.updateUnitOfMeasure(unit_of_measure);
+                        UnitsOfMeasureDatabase.updateUnitOfMeasure(
+                            unit_of_measure);
                       } else {
-                        UnitsOfMeasureDatabase.insertUnitOfMeasure(unit_of_measure);
+                        UnitsOfMeasureDatabase.insertUnitOfMeasure(
+                            unit_of_measure);
                       }
 
                       Navigator.pop(context);
                     }
                   },
                   style: ButtonStyle(
-                      backgroundColor: WidgetStateProperty.all(Colors.green)),
-                  child: const Text("Save"),
+                      elevation: const WidgetStatePropertyAll(8),
+                      backgroundColor: WidgetStateProperty.all(Colors.white)),
+                  child: Text(
+                    widget.id != null ? "Update" : "Create",
+                    style: const TextStyle(color: Colors.teal),
+                  ),
                 ),
               )
             ],
@@ -78,7 +92,7 @@ class _UnitOfMeasureDialogBoxState extends State<UnitOfMeasureDialogBox> {
     );
 
     return AlertDialog(
-      content: SizedBox(height: 170, child: childWidget),
+      content: SizedBox(height: 270, child: childWidget),
     );
   }
 }

@@ -56,10 +56,11 @@ class _RetailersState extends State<Retailers> {
             ElevatedButton(
               onPressed: () => addRetailer(context),
               style: const ButtonStyle(
-                  backgroundColor: WidgetStatePropertyAll(Colors.green)),
+                  elevation: WidgetStatePropertyAll(8),
+                  backgroundColor: WidgetStatePropertyAll(Colors.white)),
               child: const Icon(
                 Icons.add,
-                color: Color.fromARGB(255, 244, 253, 255),
+                color: Colors.teal,
               ),
             ),
           ],
@@ -74,7 +75,7 @@ class _RetailersState extends State<Retailers> {
         if (docs.isEmpty)
           const Center(
             child: Padding(
-              padding: EdgeInsets.only(top: 16.0),
+              padding: EdgeInsets.only(top: 32.0),
               child: Text(
                 'No retailers',
                 style: TextStyle(color: Colors.grey),
@@ -88,9 +89,10 @@ class _RetailersState extends State<Retailers> {
   @override
   Widget build(BuildContext context) {
     return AppScaffold(
+        title: "Retailers",
         childWidget: StreamListView(
-      listViewBuilder: retailerListView,
-      stream: RetailerDatabase.getRetailers(),
-    ));
+          listViewBuilder: retailerListView,
+          stream: RetailerDatabase.getRetailers(),
+        ));
   }
 }

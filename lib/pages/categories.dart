@@ -55,10 +55,11 @@ class _CategoriesState extends State<Categories> {
             ElevatedButton(
               onPressed: () => addCategory(context),
               style: const ButtonStyle(
-                  backgroundColor: WidgetStatePropertyAll(Colors.green)),
+                  elevation: WidgetStatePropertyAll(8),
+                  backgroundColor: WidgetStatePropertyAll(Colors.white)),
               child: const Icon(
                 Icons.add,
-                color: Color.fromARGB(255, 244, 253, 255),
+                color: Colors.teal,
               ),
             ),
           ],
@@ -73,7 +74,7 @@ class _CategoriesState extends State<Categories> {
         if (docs.isEmpty)
           const Center(
             child: Padding(
-              padding: EdgeInsets.only(top: 16.0),
+              padding: EdgeInsets.only(top: 32.0),
               child: Text(
                 'No categories',
                 style: TextStyle(color: Colors.grey),
@@ -87,6 +88,7 @@ class _CategoriesState extends State<Categories> {
   @override
   Widget build(BuildContext context) {
     return AppScaffold(
+        title: "Categories",
         childWidget: StreamListView(
             stream: CategoryDatabase.getCategories(),
             listViewBuilder: categoryListView));
