@@ -25,6 +25,18 @@ class ProductDatabase {
     });
   }
 
+  // Get product with barcode
+  static Future<Product> getProduct(String barcode) async {
+    return await baseDatabase.collection.get().then((snapshot) {
+      List<Product> products = snapshot.docs
+          .map((el) => Product.toObjectWithSnapshot(el))
+          .where((el){return el.barcode == barcode;})
+          .toList();
+
+      return products.isEmpty ? Product.empty() : products[0];
+    });
+  }
+
   // Get listing of products in collection
   static Future<List<Product>> getProductHistoryListing(
       {required String history_id}) async {

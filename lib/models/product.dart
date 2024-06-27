@@ -7,8 +7,8 @@ class Product implements Base {
   String? id;
   String? product_history_id;
   String barcode;
-  final String name;
-  final String description;
+  String name;
+  String description;
   final String category;
   final String retailer;
   final String unit_of_measure;
