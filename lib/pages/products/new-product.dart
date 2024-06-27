@@ -101,7 +101,7 @@ class _NewProductState extends State<NewProduct> {
                   FormBuilderTextField(
                     keyboardType: TextInputType.number,
                     name: 'price',
-                    initialValue: widget.product.price.toString(),
+                    initialValue: widget.product.price.toStringAsFixed(2),
                     decoration: const InputDecoration(labelText: 'Price'),
                     validator: FormBuilderValidators.compose([
                       FormBuilderValidators.required(),

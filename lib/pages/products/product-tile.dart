@@ -40,7 +40,7 @@ class ProductTile extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text("Price: " + product.price.toString()),
+                Text("Price: R" + product.price.toStringAsFixed(2)),
                 Text("Unit: " + product.unit.toString()),
               ],
             ),
