@@ -267,7 +267,13 @@ class _ProductsState extends State<Products> {
       );
     }
 
-    final products = docs.map((doc) => Product.toObjectWithSnapshot(doc));
+    final products =
+        docs.map((doc) => Product.toObjectWithSnapshot(doc)).where((el) {
+      return (searchTerm ?? "").isEmpty ||
+          (el.retailer.toLowerCase().contains(searchTerm?.toLowerCase() ?? ""));
+    });
+
+    FocusManager.instance.primaryFocus?.unfocus();
 
     return ListView(
       scrollDirection: Axis.vertical,
@@ -318,8 +324,12 @@ class _ProductsState extends State<Products> {
               onChanged: (_) {
                 controller.openView();
               },
+              onTapOutside: (event) {
+                FocusManager.instance.primaryFocus?.unfocus();
+              },
               onSubmitted: (String text) {
                 searchTerm = text;
+                FocusManager.instance.primaryFocus?.unfocus();
                 setState(() {});
               },
               hintText: "Search Retailers...",
@@ -342,12 +352,13 @@ class _ProductsState extends State<Products> {
             );
           }, suggestionsBuilder:
                   (BuildContext context, SearchController controller) async {
+            searchTerm = controller.text;
             List<Retailer> filteredRetails = _retailers
                 .where((retailer) =>
-                    controller.text.isEmpty ||
+                    (searchTerm ?? "").isEmpty ||
                     retailer.name
                         .toLowerCase()
-                        .contains(controller.text.toLowerCase()))
+                        .contains(searchTerm?.toLowerCase() ?? ""))
                 .toList();
 
             return List<ListTile>.generate(filteredRetails.length, (int index) {
@@ -359,6 +370,7 @@ class _ProductsState extends State<Products> {
                   searchTerm = item;
 
                   controller.closeView(item);
+                  FocusManager.instance.primaryFocus?.unfocus();
                   setState(() {});
                 },
               );
