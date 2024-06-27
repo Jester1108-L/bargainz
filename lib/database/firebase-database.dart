@@ -18,8 +18,6 @@ class FirebaseDatabase {
   // Insert doc into collection
   Future<String> insertDoc(Base doc) async {
     return await collection.add(doc.toMap()).then((docRef) {
-      print(docRef);
-
       return docRef.id;
     });
   }
