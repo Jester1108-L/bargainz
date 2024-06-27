@@ -68,6 +68,7 @@ class _NewProductState extends State<NewProduct> {
                 children: [
                   FormBuilderTextField(
                     name: 'barcode',
+                    readOnly: true,
                     decoration: const InputDecoration(labelText: 'Barcode'),
                     validator: FormBuilderValidators.compose([
                       FormBuilderValidators.required(),
