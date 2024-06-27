@@ -1,13 +1,13 @@
+import 'package:bargainz/models/unit-of-measure.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 
 class UnitOfMeasureTile extends StatelessWidget {
-  final String title;
-  final String code;
+  final UnitOfMeasure unit_of_measure;
   final Function(BuildContext)? onDelete;
   final Function(BuildContext)? onEdit;
 
-  const UnitOfMeasureTile({super.key, required this.title, required this.code, required this.onDelete, required this.onEdit});
+  const UnitOfMeasureTile({super.key, required this.unit_of_measure, required this.onDelete, required this.onEdit});
 
   @override
   Widget build(BuildContext context) {
@@ -40,7 +40,7 @@ class UnitOfMeasureTile extends StatelessWidget {
           ],
         ),
         child: Card(
-          elevation: 8,
+          elevation: 4,
           child: Padding(
             padding: const EdgeInsets.all(12),
             child: Column(
@@ -50,7 +50,7 @@ class UnitOfMeasureTile extends StatelessWidget {
                 Row(
                   children: [
                     Text(
-                      "$title ($code)",
+                      "${unit_of_measure.name} (${unit_of_measure.code})",
                       style: const TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.w400,

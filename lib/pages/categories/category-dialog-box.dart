@@ -12,7 +12,7 @@ class CategoryDialogBox extends StatefulWidget {
 
   const CategoryDialogBox({
     super.key,
-    required this.id,
+    this.id,
     required this.category,
   });
 
@@ -39,7 +39,6 @@ class _CategoryDialogBoxState extends State<CategoryDialogBox> {
   @override
   Widget build(BuildContext context) {
     Widget childWidget = Column(
-      // scrollDirection: Axis.vertical,
       children: [
         Text(
           "${widget.id != null ? "Update" : "Create"} Category",
@@ -67,7 +66,7 @@ class _CategoryDialogBoxState extends State<CategoryDialogBox> {
                     DropdownMenuItem(
                       child: Text(unit_of_measure.name),
                       value: unit_of_measure.code,
-                      key: Key(unit_of_measure.id),
+                      key: Key(unit_of_measure.id ?? ''),
                     )
                 ],
                 name: 'unit_of_measure',
@@ -77,17 +76,15 @@ class _CategoryDialogBoxState extends State<CategoryDialogBox> {
                 ]),
               ),
               Padding(
-                padding: const EdgeInsets.only(top: 8.0),
-                child: FilledButton(
+                padding: const EdgeInsets.only(top: 16.0),
+                child: ElevatedButton(
                   onPressed: () {
                     bool valid =
                         _formKey.currentState?.saveAndValidate() ?? false;
 
                     if (valid) {
                       final data = _formKey.currentState?.value;
-                      Category category = Category(
-                          name: data?["name"],
-                          unit_of_measure: data?["unit_of_measure"]);
+                      Category category = Category.toObject(data ?? {});
 
                       if (widget.id != null) {
                         category.id = widget.id;
@@ -101,35 +98,10 @@ class _CategoryDialogBoxState extends State<CategoryDialogBox> {
                     }
                   },
                   style: ButtonStyle(
-                      backgroundColor: WidgetStateProperty.all(Colors.green)),
-                  child: const Text("Save"),
+                      elevation: const WidgetStatePropertyAll(8),
+                      backgroundColor: WidgetStateProperty.all(Colors.white)),
+                  child: Text(widget.id != null ? "Update" : "Create", style: const TextStyle(color: Colors.teal),),
                 ),
-                // child: MaterialButton(
-                //   color: Colors.teal,
-                //   elevation: 8,
-                //   onPressed: () {
-                //     bool valid =
-                //         _formKey.currentState?.saveAndValidate() ?? false;
-
-                //     if (valid) {
-                //       final data = _formKey.currentState?.value;
-                //       Category category = Category(
-                //           name: data?["name"],
-                //           unit_of_measure: data?["unit_of_measure"]);
-
-                //       if (widget.id != null) {
-                //         category.id = widget.id;
-                //         CategoryDatabase.updateCategory(category);
-                //       } else {
-                //         category.id = "";
-                //         CategoryDatabase.insertCategory(category);
-                //       }
-
-                //       Navigator.pop(context);
-                //     }
-                //   },
-                //   child: Text(widget.id != null ? "Update" : "Create"),
-                // ),
               )
             ],
           ),
@@ -138,52 +110,7 @@ class _CategoryDialogBoxState extends State<CategoryDialogBox> {
     );
 
     return AlertDialog(
-      content: SizedBox(height: 220, child: childWidget),
+      content: SizedBox(height: 280, child: childWidget),
     );
-    // return AlertDialog(
-    //   content: SizedBox(
-    //     height: 200,
-    //     child: Column(
-    //       mainAxisAlignment: MainAxisAlignment.spaceBetween,
-    //       crossAxisAlignment: CrossAxisAlignment.start,
-    //       children: [
-    //         const Text("Create Category"),
-    //         const Divider(
-    //           thickness: 1,
-    //           color: Color.fromARGB(64, 0, 0, 0),
-    //         ),
-
-    //         Container(
-    //           padding: EdgeInsets.symmetric(vertical: 8),
-    //           child: Column(
-    //             children: [
-    //               TextField(
-    //                 controller: controller,
-    //                 decoration: const InputDecoration(
-    //                     border: OutlineInputBorder(), hintText: "Category Name"),
-    //               ),
-    //             ],
-    //           ),
-    //         ),
-
-    //         Row(
-    //           mainAxisAlignment: MainAxisAlignment.spaceBetween,
-    //           children: [
-    //             FilledButton(
-    //               onPressed: onSave,
-    //               style: ButtonStyle(backgroundColor: WidgetStateProperty.all(Colors.green)),
-    //               child: const Text("Save"),
-    //             ),
-    //             FilledButton(
-    //               onPressed: onCancel,
-    //               style: ButtonStyle(backgroundColor: WidgetStateProperty.all(Colors.red)),
-    //               child: const Text("Cancel"),
-    //             ),
-    //           ],
-    //         ),
-    //       ],
-    //     ),
-    //   ),
-    // );
   }
 }

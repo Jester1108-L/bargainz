@@ -1,10 +1,7 @@
+import 'package:bargainz/components/app-scaffold.dart';
 import 'package:bargainz/pages/categories.dart';
-import 'package:bargainz/pages/dashboard.dart';
-import 'package:bargainz/pages/item-summary.dart';
-import 'package:bargainz/pages/items.dart';
-import 'package:bargainz/pages/items/new-product.dart';
+import 'package:bargainz/pages/history.dart';
 import 'package:bargainz/pages/retailers.dart';
-import 'package:bargainz/pages/settings-page.dart';
 import 'package:bargainz/pages/units-of-measure.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -24,69 +21,29 @@ class MainApp extends StatefulWidget {
 }
 
 class _MainAppState extends State<MainApp> {
-  int _selectedIndex = 1;
-
-  final List _pages = [
-    Items(),
-    // Dashboard(),
-    ItemSummary(),
-    SettingsPage(),
-  ];
-
-  void _navigateBottomBar(int index) {
-    setState(() {
-      _selectedIndex = index;
-    });
-  }
+  final Map<String, Widget Function(BuildContext)> routes = {
+    '/categories': (context) => const Categories(),
+    '/retailers': (context) => const Retailers(),
+    '/units-of-measure': (context) => const UnitsOfMeasure(),
+    '/product-history': (context) => const History(),
+  };
 
   @override
   Widget build(BuildContext context) {
+    ColorScheme appColors = ColorScheme.fromSeed(seedColor: Colors.teal);
+
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      routes: {
-        '/categories': (context) => Categories(),
-        '/retailers': (context) => Retailers(),
-        '/units-of-measure': (context) => UnitsOfMeasure(),
-      },
-      home: Scaffold(
-        appBar: AppBar(
-          backgroundColor: Colors.teal,
-          title: const Text(
-            "Bargainz",
-            style: TextStyle(
-              color: Color.fromARGB(255, 244, 253, 255),
-            ),
-          ),
-          centerTitle: true,
-          shadowColor: Colors.black,
-          elevation: 8,
-        ),
-        body: _pages[_selectedIndex],
-        bottomNavigationBar: NavigationBar(
-          onDestinationSelected: _navigateBottomBar,
-          labelBehavior: NavigationDestinationLabelBehavior.onlyShowSelected,
-          selectedIndex: _selectedIndex,
-          height: 64,
-          destinations: const [
-            NavigationDestination(
-                icon: Icon(Icons.list, color: Colors.teal), label: "Products"),
-            // NavigationDestination(
-            //     icon: Icon(
-            //       Icons.home,
-            //       color: Colors.teal,
-            //     ),
-            //     label: "Home"),
-            NavigationDestination(
-                icon: Icon(
-                  Icons.summarize,
-                  color: Colors.teal,
-                ),
-                label: "Summary"),
-            NavigationDestination(
-                icon: Icon(Icons.settings, color: Colors.teal),
-                label: "Settings"),
-          ],
-        ),
+      theme: ThemeData(
+        useMaterial3: true,
+        colorScheme: appColors, //<--this
+        textTheme: const TextTheme(
+            titleLarge: TextStyle(color: Colors.teal)), //<--and this
+      ),
+      routes: routes,
+      home: AppScaffold(
+        showNavigationBar: true,
+        showBackButton: false,
       ),
     );
   }

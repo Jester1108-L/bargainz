@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 
-class RetailTile extends StatelessWidget {
+class RetailerTile extends StatelessWidget {
   final String title;
   final Function(BuildContext)? onDelete;
   final Function(BuildContext)? onEdit;
 
-  const RetailTile(
+  const RetailerTile(
       {super.key,
       required this.title,
       required this.onDelete,
@@ -43,7 +43,7 @@ class RetailTile extends StatelessWidget {
           ],
         ),
         child: Card(
-          elevation: 8,
+          elevation: 4,
           child: Padding(
             padding: const EdgeInsets.all(12),
             child: Column(

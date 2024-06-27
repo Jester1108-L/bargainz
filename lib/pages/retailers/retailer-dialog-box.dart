@@ -1,24 +1,24 @@
-import 'package:bargainz/database/unit-of-measure-database.dart';
-import 'package:bargainz/models/unit-of-measure.dart';
+import 'package:bargainz/database/retail-database.dart';
+import 'package:bargainz/models/retailer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 
-class UnitOfMeasureDialogBox extends StatefulWidget {
+class RetailerDialogBox extends StatefulWidget {
   final String? id;
-  final UnitOfMeasure unit_of_measure;
+  final Retailer retailer;
 
-  const UnitOfMeasureDialogBox({
+  const RetailerDialogBox({
     super.key,
     this.id,
-    required this.unit_of_measure,
+    required this.retailer,
   });
 
   @override
-  State<UnitOfMeasureDialogBox> createState() => _UnitOfMeasureDialogBoxState();
+  State<RetailerDialogBox> createState() => _RetailerDialogBoxState();
 }
 
-class _UnitOfMeasureDialogBoxState extends State<UnitOfMeasureDialogBox> {
+class _RetailerDialogBoxState extends State<RetailerDialogBox> {
   final _formKey = GlobalKey<FormBuilderState>();
 
   @override
@@ -26,7 +26,7 @@ class _UnitOfMeasureDialogBoxState extends State<UnitOfMeasureDialogBox> {
     Widget childWidget = Column(
       children: [
         Text(
-          "${widget.id != null ? "Update" : "Create"} Unit Of Measure",
+          "${widget.id != null ? "Update" : "Create"} Retailer",
           style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w300),
         ),
         const Divider(
@@ -35,19 +35,12 @@ class _UnitOfMeasureDialogBoxState extends State<UnitOfMeasureDialogBox> {
         ),
         FormBuilder(
           key: _formKey,
-          initialValue: widget.unit_of_measure.toMap(),
+          initialValue: widget.retailer.toMap(),
           child: Column(
             children: [
               FormBuilderTextField(
                 name: 'name',
                 decoration: const InputDecoration(labelText: 'Name'),
-                validator: FormBuilderValidators.compose([
-                  FormBuilderValidators.required(),
-                ]),
-              ),
-              FormBuilderTextField(
-                name: 'code',
-                decoration: const InputDecoration(labelText: 'Code'),
                 validator: FormBuilderValidators.compose([
                   FormBuilderValidators.required(),
                 ]),
@@ -61,16 +54,14 @@ class _UnitOfMeasureDialogBoxState extends State<UnitOfMeasureDialogBox> {
 
                     if (valid) {
                       final data = _formKey.currentState?.value;
-                      UnitOfMeasure unit_of_measure =
-                          UnitOfMeasure.toObject(data ?? {});
+                      Retailer retailer = Retailer.toObject(data ?? {});
 
                       if (widget.id != null) {
-                        unit_of_measure.id = widget.id;
-                        UnitsOfMeasureDatabase.updateUnitOfMeasure(
-                            unit_of_measure);
+                        retailer.id = widget.id;
+                        RetailerDatabase.updateRetailer(retailer);
                       } else {
-                        UnitsOfMeasureDatabase.insertUnitOfMeasure(
-                            unit_of_measure);
+                        retailer.id = "";
+                        RetailerDatabase.insertRetailer(retailer);
                       }
 
                       Navigator.pop(context);
@@ -92,7 +83,7 @@ class _UnitOfMeasureDialogBoxState extends State<UnitOfMeasureDialogBox> {
     );
 
     return AlertDialog(
-      content: SizedBox(height: 270, child: childWidget),
+      content: SizedBox(height: 190, child: childWidget),
     );
   }
 }

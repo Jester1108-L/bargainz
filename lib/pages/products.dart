@@ -1,46 +1,40 @@
+import 'package:bargainz/components/stream-list-view.dart';
 import 'package:bargainz/database/product-database.dart';
 import 'package:bargainz/database/retail-database.dart';
 import 'package:bargainz/models/product.dart';
 import 'package:bargainz/models/retailer.dart';
-import 'package:bargainz/pages/items/item-tile.dart';
-import 'package:bargainz/pages/items/new-product.dart';
+import 'package:bargainz/pages/products/product-tile.dart';
+import 'package:bargainz/pages/products/new-product.dart';
 import 'package:camera/camera.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:google_mlkit_barcode_scanning/google_mlkit_barcode_scanning.dart';
 
-class Items extends StatefulWidget {
-  const Items({super.key});
+class Products extends StatefulWidget {
+  const Products({super.key});
 
   @override
-  State<Items> createState() => _ItemsState();
+  State<Products> createState() => _ProductsState();
 }
 
-class _ItemsState extends State<Items> {
-  String? scannedBarcode = null;
-  String? searchTerm = null;
+class _ProductsState extends State<Products> {
+  String? searchTerm;
   List<Retailer> _retailers = [];
-  // late Future<void> _initializeControllerFuture;
 
+  // Delete product
   void onDelete(String id) {
-    setState(() {
-      ProductDatabase.deleteProduct(id);
-    });
+    ProductDatabase.deleteProduct(id);
+    setState(() {});
   }
 
-  void onBarcodeScanned() async {
+  // Process barcode on image scanned
+  void onBarcodeScanned(String? barcode) async {
     Navigator.pop(context);
 
-    if (scannedBarcode != null) {
-      Product product = Product(
-          barcode: scannedBarcode ?? "",
-          name: "",
-          retailer: "",
-          unit_of_measure: "",
-          category: "",
-          unit: 0,
-          price: 0,
-          description: "");
+    if (barcode != null) {
+      Product product = Product.empty();
+
+      product.barcode = barcode;
 
       showDialog(
           context: context,
@@ -55,15 +49,15 @@ class _ItemsState extends State<Items> {
                     Center(
                       child: Column(
                         children: [
-                          Text("Scanned Barcode: $scannedBarcode"),
+                          Text("Scanned Barcode: $barcode"),
                           const Text("Would you like to proceed?"),
                         ],
                       ),
                     ),
                     ElevatedButton(
                       style: ElevatedButton.styleFrom(
-                        minimumSize: const Size.fromHeight(
-                            32), // fromHeight use double.infinity as width and 40 is the height
+                        elevation: 8,
+                        minimumSize: const Size.fromHeight(32),
                       ),
                       onPressed: () {
                         Navigator.pop(context);
@@ -77,17 +71,23 @@ class _ItemsState extends State<Items> {
                           ),
                         );
                       },
-                      child: const Text("OK"),
+                      child: const Text(
+                        "OK",
+                        style: TextStyle(color: Colors.teal),
+                      ),
                     ),
                     ElevatedButton(
                       style: ElevatedButton.styleFrom(
-                        minimumSize: const Size.fromHeight(
-                            32), // fromHeight use double.infinity as width and 40 is the height
+                        elevation: 8,
+                        minimumSize: const Size.fromHeight(32),
                       ),
                       onPressed: () {
                         Navigator.pop(context);
                       },
-                      child: const Text("Cancel"),
+                      child: const Text(
+                        "Cancel",
+                        style: TextStyle(color: Colors.teal),
+                      ),
                     ),
                   ],
                 ),
@@ -111,13 +111,16 @@ class _ItemsState extends State<Items> {
                     ),
                     ElevatedButton(
                       style: ElevatedButton.styleFrom(
-                        minimumSize: const Size.fromHeight(
-                            32), // fromHeight use double.infinity as width and 40 is the height
+                        elevation: 8,
+                        minimumSize: const Size.fromHeight(32),
                       ),
                       onPressed: () {
                         Navigator.pop(context);
                       },
-                      child: const Text("OK"),
+                      child: const Text(
+                        "OK",
+                        style: TextStyle(color: Colors.teal),
+                      ),
                     ),
                   ],
                 ),
@@ -127,6 +130,7 @@ class _ItemsState extends State<Items> {
     }
   }
 
+  // Display camera screen
   void onCameraDisplay() async {
     if (mounted) {
       List<CameraDescription> cameras = await availableCameras();
@@ -147,8 +151,9 @@ class _ItemsState extends State<Items> {
                     CameraPreview(cameraController),
                     ElevatedButton(
                       style: ElevatedButton.styleFrom(
-                        minimumSize: const Size.fromHeight(
-                            32), // fromHeight use double.infinity as width and 40 is the height
+                        elevation: 8,
+                        backgroundColor: Colors.teal,
+                        minimumSize: const Size.fromHeight(32),
                       ),
                       onPressed: () async {
                         try {
@@ -158,18 +163,17 @@ class _ItemsState extends State<Items> {
                           final List<Barcode> barcodes =
                               await BarcodeScanner().processImage(inputImage);
 
-                          if (barcodes.isNotEmpty) {
-                            scannedBarcode = barcodes.first.displayValue;
-                          } else {
-                            scannedBarcode = null;
-                          }
-
-                          onBarcodeScanned();
+                          onBarcodeScanned(barcodes.isNotEmpty
+                              ? barcodes.first.displayValue
+                              : null);
                         } catch (e) {
                           print(e);
                         }
                       },
-                      child: const Icon(Icons.camera_alt),
+                      child: const Icon(
+                        Icons.camera_alt,
+                        color: Colors.white,
+                      ),
                     ),
                   ],
                 ),
@@ -177,6 +181,45 @@ class _ItemsState extends State<Items> {
             );
           });
     }
+  }
+
+  // Builder function for list view
+  Widget productListView(List<DocumentSnapshot> docs) {
+    if (docs.isEmpty) {
+      return const Center(
+        child: Padding(
+          padding: EdgeInsets.only(top: 16.0),
+          child: Text(
+            'No products',
+            style: TextStyle(color: Colors.grey),
+          ),
+        ),
+      );
+    }
+
+    final products = docs.map((doc) => Product.toObjectWithSnapshot(doc));
+
+    return ListView(
+      scrollDirection: Axis.vertical,
+      children: [
+        for (Product product in products)
+          ProductTile(
+            product: product,
+            onDelete: (context) => onDelete(product.id ?? ""),
+            onEdit: (context) {
+              Navigator.push(
+                context,
+                MaterialPageRoute<void>(
+                  builder: (BuildContext context) => NewProduct(
+                    product: product,
+                    id: product.id,
+                  ),
+                ),
+              );
+            },
+          )
+      ],
+    );
   }
 
   @override
@@ -188,9 +231,10 @@ class _ItemsState extends State<Items> {
           SearchAnchor(
               builder: (BuildContext context, SearchController controller) {
             return SearchBar(
+              backgroundColor: WidgetStatePropertyAll(Colors.white),
               controller: controller,
               padding: const WidgetStatePropertyAll<EdgeInsets>(
-                  EdgeInsets.symmetric(horizontal: 16.0)),
+                  EdgeInsets.symmetric(horizontal: 8.0)),
               onTap: () async {
                 _retailers = await RetailerDatabase.getRetailersListing();
 
@@ -200,7 +244,8 @@ class _ItemsState extends State<Items> {
                 controller.openView();
               },
               onSubmitted: (String text) {
-                print(text);
+                searchTerm = text;
+                setState(() {});
               },
               hintText: "Search Retails...",
               trailing: [
@@ -210,9 +255,13 @@ class _ItemsState extends State<Items> {
                     setState(() {});
                   },
                   style: const ButtonStyle(
+                      elevation: WidgetStatePropertyAll(4),
                       padding: WidgetStatePropertyAll<EdgeInsets>(
                           EdgeInsets.all(0))),
-                  child: const Icon(Icons.search),
+                  child: const Icon(
+                    Icons.search,
+                    color: Colors.teal,
+                  ),
                 )
               ],
             );
@@ -234,9 +283,8 @@ class _ItemsState extends State<Items> {
                 onTap: () {
                   searchTerm = item;
 
-                  setState(() {
-                    controller.closeView(item);
-                  });
+                  controller.closeView(item);
+                  setState(() {});
                 },
               );
             });
@@ -249,103 +297,30 @@ class _ItemsState extends State<Items> {
                 ElevatedButton(
                   onPressed: () => onCameraDisplay(),
                   style: const ButtonStyle(
-                      backgroundColor: WidgetStatePropertyAll(Colors.blue)),
+                      elevation: WidgetStatePropertyAll(8),
+                      backgroundColor: WidgetStatePropertyAll(Colors.white)),
                   child: const Icon(
                     Icons.camera,
-                    color: Color.fromARGB(255, 244, 253, 255),
+                    color: Colors.teal,
                   ),
                 ),
                 ElevatedButton(
                   onPressed: () => ProductDatabase.deleteAll(),
                   style: const ButtonStyle(
-                      backgroundColor: WidgetStatePropertyAll(Colors.red)),
+                      elevation: WidgetStatePropertyAll(8),
+                      backgroundColor: WidgetStatePropertyAll(Colors.white)),
                   child: const Icon(
                     Icons.delete,
-                    color: Color.fromARGB(255, 244, 253, 255),
+                    color: Colors.teal,
                   ),
                 ),
               ],
             ),
           ),
           Flexible(
-            child: StreamBuilder<QuerySnapshot>(
-              stream: ProductDatabase.getProducts(),
-              builder: (BuildContext context,
-                  AsyncSnapshot<QuerySnapshot> snapshot) {
-                if (snapshot.hasError) {
-                  return const Text('Something went wrong');
-                }
-
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(20),
-                        child: SizedBox(
-                          height: 250,
-                          width: 250,
-                          child: Image.asset('assets/images/image-loading.gif'),
-                        ),
-                      ),
-                    ],
-                  );
-                }
-
-                List<DocumentSnapshot> docs = snapshot.data!.docs.where((doc) {return (searchTerm == null) || (doc["retailer"] == searchTerm);}).toList();
-
-                if (docs.isEmpty) {
-                  return const Center(
-                    child: Padding(
-                      padding: EdgeInsets.only(top: 16.0),
-                      child: Text(
-                        'No products',
-                        style: TextStyle(color: Colors.grey),
-                      ),
-                    ),
-                  );
-                }
-
-                return ListView(
-                  scrollDirection: Axis.vertical,
-                  children: [
-                    for (DocumentSnapshot doc in docs)
-                      ItemTile(
-                        product: Product(
-                            barcode: doc["barcode"],
-                            name: doc["name"],
-                            category: doc["category"],
-                            price: doc["price"],
-                            unit: doc["unit"],
-                            retailer: doc["retailer"],
-                            unit_of_measure: doc["unit_of_measure"],
-                            description: doc["description"]),
-                        onDelete: (context) => onDelete(doc.id),
-                        onEdit: (context) {
-                          Product product = Product(
-                              barcode: doc["barcode"],
-                              name: doc["name"],
-                              category: doc["category"],
-                              retailer: doc["retailer"],
-                              price: doc["price"],
-                              unit: doc["unit"],
-                              unit_of_measure: doc["unit_of_measure"],
-                              description: doc["description"]);
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute<void>(
-                              builder: (BuildContext context) => NewProduct(
-                                product: product,
-                                id: doc.id,
-                              ),
-                            ),
-                          );
-                        },
-                      )
-                  ],
-                );
-              },
-            ),
+            child: StreamListView(
+                stream: ProductDatabase.getProducts(),
+                listViewBuilder: productListView),
           ),
         ],
       ),

@@ -1,4 +1,5 @@
 import 'package:bargainz/components/app-scaffold.dart';
+import 'package:bargainz/components/stream-list-view.dart';
 import 'package:bargainz/database/unit-of-measure-database.dart';
 import 'package:bargainz/models/unit-of-measure.dart';
 import 'package:bargainz/pages/units-of-measure/unit-of-measure-dialog-box.dart';
@@ -14,116 +15,84 @@ class UnitsOfMeasure extends StatefulWidget {
 }
 
 class _UnitsOfMeasureState extends State<UnitsOfMeasure> {
-  final _nameController = TextEditingController();
-  final _codeController = TextEditingController();
-
-  void onSave(bool updating, String id) {
-    setState(() {
-      UnitOfMeasure unit_of_measure = UnitOfMeasure(name: _nameController.text, id: id, code: _codeController.text);
-
-      if (updating) {
-        UnitsOfMeasureDatabase.updateUnitOfMeasure(unit_of_measure);
-      } else {
-        UnitsOfMeasureDatabase.insertUnitOfMeasure(unit_of_measure);
-      }
-
-      _nameController.clear();
-      _codeController.clear();
-      Navigator.of(context).pop();
-    });
-  }
-
+  // Delete unit of measure
   void onDelete(String id) {
-    setState(() {
-      UnitsOfMeasureDatabase.deleteUnitOfMeasure(id);
-    });
+    UnitsOfMeasureDatabase.deleteUnitOfMeasure(id);
+    setState(() {});
   }
 
-  void onEdit(String id, String name, String code) {
+  // Edit unit of measure
+  void onEdit(UnitOfMeasure unit_of_measure) {
     showDialog(
         context: context,
         builder: (context) {
-          _nameController.text = name;
-          _codeController.text = code;
-
           return UnitOfMeasureDialogBox(
-            nameController: _nameController,
-            codeController: _codeController,
-            onCancel: () => Navigator.of(context).pop(),
-            onSave: () => onSave(true, id),
+            id: unit_of_measure.id,
+            unit_of_measure: unit_of_measure,
           );
         });
   }
 
+  // Add unit of measure
   void addUnitOfMeasure(BuildContext context) {
     showDialog(
         context: context,
         builder: (context) {
           return UnitOfMeasureDialogBox(
-            nameController: _nameController,
-            codeController: _codeController,
-            onCancel: () => Navigator.of(context).pop(),
-            onSave: () => onSave(false, ""),
+            unit_of_measure: UnitOfMeasure.empty(),
           );
         });
   }
 
+  // Builder function for list view
+  ListView unitOfMeasureListView(List<DocumentSnapshot> docs) {
+    return ListView(
+      scrollDirection: Axis.vertical,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: [
+            ElevatedButton(
+              onPressed: () => addUnitOfMeasure(context),
+              style: const ButtonStyle(
+                  elevation: WidgetStatePropertyAll(8),
+                  backgroundColor: WidgetStatePropertyAll(Colors.white)),
+              child: const Icon(
+                Icons.add,
+                color: Colors.teal,
+              ),
+            ),
+          ],
+        ),
+        if (docs.isNotEmpty)
+          for (DocumentSnapshot doc in docs)
+            UnitOfMeasureTile(
+              unit_of_measure: UnitOfMeasure.toObjectWithSnapshot(doc),
+              onDelete: (context) => onDelete(doc.id),
+              onEdit: (context) =>
+                  onEdit(UnitOfMeasure.toObjectWithSnapshot(doc)),
+            ),
+        if (docs.isEmpty)
+          const Center(
+            child: Padding(
+              padding: EdgeInsets.only(top: 32.0),
+              child: Text(
+                'No units of measure',
+                style: TextStyle(color: Colors.grey),
+              ),
+            ),
+          )
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    Widget childWidget = StreamBuilder<QuerySnapshot>(
-      stream: UnitsOfMeasureDatabase.getUnitsOfMeasure(),
-      builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
-        if (snapshot.hasError) {
-          return const Text('Something went wrong');
-        }
-
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              ClipRRect(
-                borderRadius: BorderRadius.circular(20),
-                child: SizedBox(
-                  height: 250,
-                  width: 250,
-                  child: Image.asset('assets/images/image-loading.gif'),
-                ),
-              ),
-            ],
-          );
-        }
-
-        List<DocumentSnapshot> docs = snapshot.data!.docs;
-
-        return ListView(
-          scrollDirection: Axis.vertical,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                ElevatedButton(
-                  onPressed: () => addUnitOfMeasure(context),
-                  style: const ButtonStyle(
-                      backgroundColor: WidgetStatePropertyAll(Colors.green)),
-                  child: const Icon(
-                    Icons.add,
-                    color: Color.fromARGB(255, 244, 253, 255),
-                  ),
-                ),
-              ],
-            ),
-            for (DocumentSnapshot doc in docs)
-              UnitOfMeasureTile(
-                title: doc["name"],
-                code: doc["code"],
-                onDelete: (context) => onDelete(doc.id),
-                onEdit: (context) => onEdit(doc.id, doc["name"], doc["code"]),
-              )
-          ],
-        );
-      },
-    );
-
-    return AppScaffold(childWidget: childWidget);
+    return AppScaffold(
+        title: "Units Of Measure",
+        childWidget: StreamListView(
+          listViewBuilder: unitOfMeasureListView,
+          stream: UnitsOfMeasureDatabase.getUnitsOfMeasure(),
+        ));
   }
 }

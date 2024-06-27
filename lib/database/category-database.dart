@@ -1,25 +1,28 @@
+import 'package:bargainz/database/firebase-database.dart';
 import 'package:bargainz/models/category.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
+// Database class for category operations
 class CategoryDatabase {
-  static final CollectionReference<Map<String, dynamic>> _collection =
-      FirebaseFirestore.instance.collection('categories');
+  static final FirebaseDatabase baseDatabase = FirebaseDatabase(collection_name: 'categories');
 
+  // Get stream of categories
   static Stream<QuerySnapshot<Map<String, dynamic>>> getCategories() {
-    return _collection.snapshots();
+    return baseDatabase.getSnapshots();
   }
 
+  // Insert category
   static Future<String> insertCategory(Category category) async {
-    return await _collection.add(category.toMap()).then((docRef) {
-      return docRef.id;
-    });
+    return await baseDatabase.insertDoc(category);
   }
 
+  // Update category
   static Future<void> updateCategory(Category category) {
-    return _collection.doc(category.id).set(category.toMap());
+    return baseDatabase.updateDoc(category);
   }
 
-  static void deleteCategory(String id) {
-    _collection.doc(id).delete();
+  // Delete category
+  static Future<void> deleteCategory(String id) {
+    return baseDatabase.deleteDoc(id);
   }
 }

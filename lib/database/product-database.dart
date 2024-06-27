@@ -1,46 +1,69 @@
+import 'package:bargainz/database/firebase-database.dart';
+import 'package:bargainz/database/product-history-database.dart';
+import 'package:bargainz/models/product-history.dart';
 import 'package:bargainz/models/product.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
+// Database class for product operations
 class ProductDatabase {
-  static final CollectionReference<Map<String, dynamic>> _collection =
-      FirebaseFirestore.instance.collection('products');
+  static FirebaseDatabase baseDatabase =
+      FirebaseDatabase(collection_name: 'products');
+  static final FirebaseDatabase productHistoryBase =
+      FirebaseDatabase(collection_name: 'product-history-products');
 
+  // Get stream of units of measure
   static Stream<QuerySnapshot<Map<String, dynamic>>> getProducts() {
-    return _collection.snapshots();
+    return baseDatabase.getSnapshots();
   }
 
+  // Get listing of products in collection
   static Future<List<Product>> getProductListing() async {
-    return await _collection.get().then((snapshot) {
+    return await baseDatabase.collection.get().then((snapshot) {
       return snapshot.docs
-          .map((el) => Product(
-              barcode: el["barcode"],
-              name: el["name"],
-              description: el["description"],
-              category: el["category"],
-              unit_of_measure: el["unit_of_measure"],
-              retailer: el["retailer"],
-              unit: el["unit"],
-              price: el["price"],
-              id: el.id))
+          .map((el) => Product.toObjectWithSnapshot(el))
           .toList();
     });
   }
 
-  static Future<String> insertProduct(Product product) async {
-    return await _collection.add(product.toMap()).then((docRef) {
-      return docRef.id;
+  // Get listing of products in collection
+  static Future<List<Product>> getProductHistoryListing(
+      {required String history_id}) async {
+    return await productHistoryBase.collection.get().then((snapshot) {
+      return snapshot.docs
+          .map((el) => Product.toObjectWithSnapshot(el))
+          .where((product) => (product.product_history_id == history_id))
+          .toList();
     });
   }
 
+  // Insert unit of measure
+  static Future<String> insertProduct(Product product) async {
+    return await baseDatabase.insertDoc(product);
+  }
+
+  // Update unit of measure
   static Future<void> updateProduct(Product product) {
-    return _collection.doc(product.id).set(product.toMap());
+    return baseDatabase.updateDoc(product);
   }
 
-  static void deleteProduct(String id) {
-    _collection.doc(id).delete();
+  // Delete unit of measure
+  static Future<void> deleteProduct(String id) {
+    return baseDatabase.deleteDoc(id);
   }
 
-  static void deleteAll() {
-    _collection.snapshots().forEach((stream) {stream.docs.forEach((doc){deleteProduct(doc.id);});});
+  // Delete all docs in collection
+  static Future<void> deleteAll() async {
+    ProductHistory product_history =
+        ProductHistory(created: DateTime.now().toString());
+
+    product_history.products = await getProductListing();
+
+    if (product_history.products.isNotEmpty) {
+      await ProductHistoryDatabase.insertProductHistory(product_history);
+    }
+
+    for (Product product in product_history.products) {
+        await deleteProduct(product.id ?? "");
+    }
   }
 }
